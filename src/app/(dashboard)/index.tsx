@@ -35,7 +35,7 @@ export default function DashboardHomeScreen() {
         <ThemedView style={styles.heroSection}>
           <AnimatedIcon />
           <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
+            Welcome to&nbsp;STD
           </ThemedText>
         </ThemedView>
 

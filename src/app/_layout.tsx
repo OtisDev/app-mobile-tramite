@@ -1,6 +1,6 @@
 import "@/global.css";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
-import { useColorScheme } from "react-native";
+import { StatusBar, useColorScheme } from "react-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { PortalHost } from "@rn-primitives/portal";
@@ -11,6 +11,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
+
+      <StatusBar
+        barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={"#193067"}
+      />
 
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
