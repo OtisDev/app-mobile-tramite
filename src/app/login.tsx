@@ -1,20 +1,15 @@
-import { ThemedView } from "@/components/themed-view";
+import KeyboardAvoidingWrapper from "@/components/keyboard-avoiding-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import "@/global.css";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import { useState } from "react";
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  View
-} from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Image, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
@@ -37,86 +32,70 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-background w-full h-full"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <KeyboardAwareScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerClassName="bg-background h-full sm:flex-1 items-center justify-center p-4 py-8 sm:py-4 sm:p-6 mt-safe"
-        keyboardDismissMode="interactive"
-        contentInset={insets}
-        style={{
-          paddingBottom: insets.bottom,
-          paddingTop: insets.top,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }}
-      >
-        <Card className="w-full max-w-md self-center my-auto">
-          <CardContent className="flex flex-col items-center relative w-full">
-            {loading && (
-              <View className="absolute w-full h-full flex flex-col flex-1 items-center justify-center z-50 bg-background/80">
-                <LottieView
-                  source={require("@/assets/animations/BiometricSignIn.json")}
-                  autoPlay
-                  loop
-                  style={{
-                    width: 200,
-                    height: 200,
-                    alignSelf: "center",
-                  }}
-                />
-                <Text className="text-center">Iniciando sesión...</Text>
-              </View>
-            )}
-            <Image
-              source={require("@/assets/images/logo-mdnch.png")}
-              className="object-contain z-10"
-              style={{
-                width: 150,
-                height: 200,
-                alignSelf: "center",
-                marginBottom: 20,
-              }}
+    <KeyboardAvoidingWrapper>
+      <Card className="w-full max-w-md self-center my-auto">
+        <CardContent className="flex flex-col items-center relative w-full">
+          {loading && (
+            <View className="absolute w-full h-full flex flex-col flex-1 items-center justify-center z-50 bg-background/80">
+              <LottieView
+                source={require("@/assets/animations/BiometricSignIn.json")}
+                autoPlay
+                loop
+                style={{
+                  width: 200,
+                  height: 200,
+                  alignSelf: "center",
+                }}
+              />
+              <Text className="text-center">Iniciando sesión...</Text>
+            </View>
+          )}
+          <Image
+            source={require("@/assets/images/logo-mdnch.png")}
+            className="object-contain z-10"
+            style={{
+              width: 150,
+              height: 200,
+              alignSelf: "center",
+              marginBottom: 20,
+            }}
+          />
+          <View className="field mb-4">
+            <Label className="label-control">DNI</Label>
+            <Input
+              placeholder="DNI"
+              value={userName}
+              onChangeText={setUserName}
+              keyboardType="number-pad"
             />
-            <ThemedView className="field mb-4">
-              <Text className="label-control">DNI</Text>
-              <Input
-                placeholder="DNI"
-                value={userName}
-                onChangeText={setUserName}
-                keyboardType="number-pad"
-              />
-            </ThemedView>
-            <ThemedView className="field mb-4">
-              <Text className="label-control">Contraseña</Text>
-              <Input
-                placeholder="Contraseña"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </ThemedView>
-            <Button
-              className="mb-4 w-full"
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              <Text>Iniciar sesión</Text>
-            </Button>
-            <Button variant={"link"} onPress={() => router.push("/register")}>
-              <Text>Crear cuenta</Text>
-            </Button>
-            <Button
-              variant={"link"}
-              onPress={() => router.push("/forgot-password")}
-            >
-              <Text>¿Olvidaste tu contraseña?</Text>
-            </Button>
-          </CardContent>
-        </Card>
-      </KeyboardAwareScrollView>
-    </KeyboardAvoidingView>
+          </View>
+          <View className="field mb-4">
+            <Label className="label-control">Contraseña</Label>
+            <Input
+              placeholder="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+          </View>
+          <Button
+            className="mb-4 w-full"
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text>Iniciar sesión</Text>
+          </Button>
+          <Button variant={"link"} onPress={() => router.push("/register")}>
+            <Text>Registrarme</Text>
+          </Button>
+          <Button
+            variant={"link"}
+            onPress={() => router.push("/forgot-password")}
+          >
+            <Text>¿Olvidaste tu contraseña?</Text>
+          </Button>
+        </CardContent>
+      </Card>
+    </KeyboardAvoidingWrapper>
   );
 }
