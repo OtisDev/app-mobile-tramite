@@ -2,6 +2,7 @@ import ActionBar from "@/components/action-bar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { InputGroup } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import {
   Option,
@@ -17,26 +18,26 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { LucideSearch, Save } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import KeyboardAvoidingWrapper from "../components/keyboard-avoiding-wrapper";
 
 export default function RegisterScreen() {
   const [acceptTerms, setAcceptTerms] = useState<boolean>(false);
   const [tipoDocumento, setTipoDocumento] = useState<Option>({
     label: "DNI",
-    value: "DNI",
+    value: "1",
   });
 
   const allowSearch = useMemo(
-    () => tipoDocumento?.value === "DNI" || tipoDocumento?.value === "RUC",
+    () => tipoDocumento?.value === "1" || tipoDocumento?.value === "4",
     [tipoDocumento],
   );
 
   const maxLength = useMemo(() => {
     switch (tipoDocumento?.value) {
-      case "DNI":
+      case "1":
         return 8;
-      case "RUC":
+      case "4":
         return 11;
       default:
         return 20;
@@ -45,9 +46,9 @@ export default function RegisterScreen() {
 
   const numberPlaceholder = useMemo(() => {
     switch (tipoDocumento?.value) {
-      case "DNI":
+      case "1":
         return "00000000";
-      case "RUC":
+      case "4":
         return "00000000000";
       default:
         return "XXXXXXXXXX";
@@ -56,13 +57,13 @@ export default function RegisterScreen() {
 
   const numberLabel = useMemo(() => {
     switch (tipoDocumento?.value) {
-      case "DNI":
+      case "1":
         return "N° DNI";
-      case "RUC":
+      case "4":
         return "N° RUC";
-      case "P":
+      case "3":
         return "N° Pasaporte";
-      case "CE":
+      case "2":
         return "N° Carnet de extranjería";
       default:
         return "Número de documento";
@@ -71,15 +72,18 @@ export default function RegisterScreen() {
 
   return (
     <>
-      <ActionBar goBack={true} />
+      <ActionBar goBack={true} title="Registro" />
       <KeyboardAvoidingWrapper>
-        <Card className="max-w-md self-center">
+        <Card className="max-full self-center">
           <CardHeader>
             <CardTitle>Información Personal</CardTitle>
           </CardHeader>
           <CardContent>
             <View className="field mb-4">
-              <Label className="label-control">Tipo de documento</Label>
+              <Text className="label-control text-sm">
+                Tipo de documento
+                <Text className="text-destructive"> *</Text>
+              </Text>
               <Select value={tipoDocumento} onValueChange={setTipoDocumento}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un tipo de documento" />
@@ -87,38 +91,36 @@ export default function RegisterScreen() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Natural</SelectLabel>
-                    <SelectItem value="P" label="PASAPORTE" />
                     <SelectItem
-                      value="DNI"
+                      value="1"
                       label="DOCUMENTO NACIONAL DE IDENTIDAD"
                     />
-                    <SelectItem value="CE" label="CARNET DE EXTRANJERÍA" />
+                    <SelectItem value="2" label="CARNET DE EXTRANJERÍA" />
+                    <SelectItem value="3" label="PASAPORTE" />
                     <SelectLabel>Jurídica</SelectLabel>
                     <SelectItem
-                      value="RUC"
+                      value="4"
                       label="REGISTRO ÚNICO DE CONTRIBUYENTE"
                     />
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </View>
-            <View className="field mb-4">
-              <Label className="label-control">{numberLabel}</Label>
-              <View className="flex flex-row gap-2">
-                <Input
-                  className="input-control"
-                  placeholder={numberPlaceholder}
-                  keyboardType="number-pad"
-                  style={{ width: allowSearch ? "80%" : "100%" }}
-                  maxLength={maxLength}
-                />
-                {allowSearch && (
-                  <Button variant={"outline"} style={{ width: "18%" }}>
+            <InputGroup
+              label={numberLabel}
+              placeholder={numberPlaceholder}
+              required
+              containerClassName="w-full mb-4"
+              keyboardType="number-pad"
+              maxLength={maxLength}
+              suffix={
+                allowSearch && (
+                  <TouchableOpacity className="pl-2">
                     <LucideSearch size={20} />
-                  </Button>
-                )}
-              </View>
-            </View>
+                  </TouchableOpacity>
+                )
+              }
+            />
             <View className="field mb-4">
               <Label className="label-control">Nombre</Label>
               <Input

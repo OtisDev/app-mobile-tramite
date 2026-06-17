@@ -10,6 +10,7 @@ interface AuthStore {
 
     setToken: (token: string) => void;
     setUser: (user: User) => void;
+    setSignedIn: (signedIn: boolean) => void;
 
     logout: () => void;
 }

@@ -15,7 +15,7 @@ export default function ForgotPasswordScreen() {
     <>
       <ActionBar goBack={true} title="Recuperar contraseña" />
       <KeyboardAvoidingWrapper>
-        <Card className="w-full max-w-md my-auto">
+        <Card className="w-full my-auto">
           <CardHeader>
             <CardTitle>Recuperar contraseña</CardTitle>
           </CardHeader>

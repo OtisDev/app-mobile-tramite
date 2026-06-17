@@ -3,4 +3,6 @@ export default interface Expedient {
     ano_eje: string;
     n_expediente: number;
     asunto: string;
+    idestado: string;
+    item_estado: number;
 }

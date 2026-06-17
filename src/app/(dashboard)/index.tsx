@@ -1,122 +1,98 @@
 import { AnimatedIcon } from "@/components/animated-icon";
-import CardExpedient from "@/components/card-expedient";
-import ExpedientFormModal from "@/components/expedients/form";
+import ButtonIcon from "@/components/button-icon";
 import { ThemedView } from "@/components/themed-view";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Text } from "@/components/ui/text";
-import { MaxContentWidth, Spacing } from "@/constants/theme";
-import Expedient from "@/types/expedient.type";
-import LottieView from "lottie-react-native";
-import { LucideSearch } from "lucide-react-native";
-import { useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { BottomTabInset, Spacing } from "@/constants/theme";
+import { useAuthStore } from "@/stores/auth.store";
+import { useRouter } from "expo-router";
+import {
+  LucideBook,
+  LucideInfo,
+  LucideLogOut,
+  LucidePlus,
+  LucideSearch,
+} from "lucide-react-native";
+import { FlatList, useWindowDimensions, View } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+
+interface ButtonAction {
+  key: string;
+  label: string;
+  icon?: React.ReactNode;
+  onPress: () => void;
+}
+
+const colorIcon = "#193067";
 
 export default function DashboardHomeScreen() {
-  const [showExpedientForm, setShowExpedientForm] = useState<boolean>(false);
-  const [year, setYear] = useState<string | undefined>(
-    new Date().getFullYear().toString(),
-  );
-  const [number, setNumber] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [searchResult, setSearchResult] = useState<Expedient[]>([]);
-
-  const onPressConsult = () => {
-    setLoading(true);
-    setSearchResult([
-      {
-        expediente_id: 1,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 1",
-      },
-      {
-        expediente_id: 2,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 2",
-      },
-      {
-        expediente_id: 3,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 3",
-      },
-      {
-        expediente_id: 4,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 4",
-      },
-      {
-        expediente_id: 5,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 5",
-      },
-      {
-        expediente_id: 6,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 6",
-      },
-      {
-        expediente_id: 7,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 7",
-      },
-      {
-        expediente_id: 8,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 8",
-      },
-      {
-        expediente_id: 9,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 9",
-      },
-      {
-        expediente_id: 10,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 10",
-      },
-      {
-        expediente_id: 11,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 11",
-      },
-      {
-        expediente_id: 12,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 12",
-      },
-      {
-        expediente_id: 13,
-        ano_eje: "2026",
-        n_expediente: 123,
-        asunto: "Asunto del expediente 13",
-      },
-    ]);
+  const safeAreaInsets = useSafeAreaInsets();
+  const insets = {
+    ...safeAreaInsets,
+    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
   };
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
+  const { width } = useWindowDimensions();
 
-  const onPressNew = () => {
-    setShowExpedientForm(true);
-  };
+  const actions: ButtonAction[] = [
+    {
+      key: "new-tramite",
+      label: "Nuevo trámite",
+      icon: <LucidePlus size={32} color={colorIcon} />,
+      onPress: () => {
+        // Handle button press
+      },
+    },
+    {
+      key: "search-tramite",
+      label: "Buscar trámite",
+      icon: (
+        <LucideSearch size={32} className="text-primary" color={colorIcon} />
+      ),
+      onPress: () => {
+        // Handle button press
+      },
+    },
+    {
+      key: "my-tramites",
+      label: "Mis trámites",
+      icon: <LucideBook size={32} color={colorIcon} />,
+      onPress: () => {
+        // Handle button press
+      },
+    },
+    {
+      key: "logout",
+      label: "Cerrar sesión",
+      icon: <LucideLogOut size={32} color={colorIcon} />,
+      onPress: () => {
+        logout();
+        router.replace("/login");
+      },
+    },
+  ];
 
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.heroSection}>
+    <ThemedView className="flex-1 flex items-center">
+      <SafeAreaView
+        edges={["top"]}
+        style={{
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        }}
+      >
+        <Alert icon={LucideInfo} className="mb-4">
+          <AlertTitle></AlertTitle>
+        </Alert>
+        <View className="gap-4 items-center justify-center my-6">
           <AnimatedIcon />
-          <View className="flex items-center gap-1">
+          <View className="flex items-center gap-1 my-4">
             <Text variant={"h3"} className="uppercase">
               Municipalidad Distrital
             </Text>
@@ -129,97 +105,26 @@ export default function DashboardHomeScreen() {
           </View>
         </View>
         <View className="flex-1 w-full mt-6">
-          <View className="flex flex-row gap-4 items-center mb-4 px-6">
-            <View className="flex flex-col items-start" style={{ width: 100 }}>
-              <View className="flex flex-row gap-2 items-start">
-                <Label>Año</Label>
-                <Label className="text-red-500">*</Label>
-              </View>
-              <Input
-                value={year}
-                onChangeText={setYear}
-                className="w-full"
-                keyboardType="number-pad"
-              />
-            </View>
-            <View className="flex flex-col items-start" style={{ width: 120 }}>
-              <View className="flex flex-row gap-2 items-start">
-                <Label>Número</Label>
-                <Label className="text-red-500">*</Label>
-              </View>
-              <Input
-                value={number}
-                onChangeText={setNumber}
-                className="w-full"
-                keyboardType="number-pad"
-              />
-            </View>
-            <View className="flex flex-col justify-end">
-              <Button
-                onPress={onPressConsult}
-                variant={"outline"}
-                className="mt-4"
-              >
-                <LucideSearch size={24} />
-              </Button>
-            </View>
-          </View>
-          {searchResult.length === 0 && (
-            <View>
-              <LottieView
-                source={require("@/assets/animations/NotFound.json")}
-                autoPlay
-                loop
+          <FlatList
+            data={actions}
+            numColumns={3}
+            keyExtractor={(item) => item.key}
+            renderItem={({ item }) => (
+              <ButtonIcon
+                onPress={item.onPress}
+                label={item.label}
                 style={{
-                  width: 200,
-                  height: 300,
-                  alignSelf: "center",
+                  width: (width - Spacing.four * 2 - Spacing.four * 2) / 3,
                 }}
-              />
-            </View>
-          )}
-          {searchResult.length > 0 && (
-            <FlatList
-              data={searchResult}
-              keyExtractor={(item) => item.expediente_id.toString()}
-              renderItem={({ item }) => <CardExpedient item={item} />}
-            />
-          )}
+              >
+                {item.icon}
+              </ButtonIcon>
+            )}
+            columnWrapperClassName="gap-4 px-5"
+            contentContainerClassName="gap-4"
+          />
         </View>
       </SafeAreaView>
-
-      <ExpedientFormModal
-        isVisible={showExpedientForm}
-        onClose={() => setShowExpedientForm(false)}
-      />
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    flexDirection: "row",
-  },
-  safeArea: {
-    flex: 1,
-    //paddingHorizontal: Spacing.four,
-    alignItems: "center",
-    gap: Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: "center",
-    justifyContent: "center",
-    //flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: "center",
-  },
-  code: {
-    textTransform: "uppercase",
-  },
-});

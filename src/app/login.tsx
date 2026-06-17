@@ -1,15 +1,27 @@
 import KeyboardAvoidingWrapper from "@/components/keyboard-avoiding-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputGroup } from "@/components/ui/input-group";
+import {
+  Option,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import "@/global.css";
+import { login } from "@/services/auth.service";
+import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
-import { useState } from "react";
-import { Image, View } from "react-native";
+import { LucideEye, LucideEyeOff } from "lucide-react-native";
+import { useMemo, useState } from "react";
+import { Image, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
@@ -18,22 +30,102 @@ export default function LoginScreen() {
     ...safeAreaInsets,
     bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
   };
+  const [tipoDocumento, setTipoDocumento] = useState<Option>({
+    label: "DNI",
+    value: "1",
+  });
   const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [secureText, setSecureText] = useState<boolean>(true);
+  const { setUser, setToken, setSignedIn } = useAuthStore();
   const router = useRouter();
 
+  const maxLength = useMemo(() => {
+    switch (tipoDocumento?.value) {
+      case "1":
+        return 8;
+      case "4":
+        return 11;
+      default:
+        return 20;
+    }
+  }, [tipoDocumento]);
+
+  const numberPlaceholder = useMemo(() => {
+    switch (tipoDocumento?.value) {
+      case "1":
+        return "00000000";
+      case "4":
+        return "00000000000";
+      default:
+        return "XXXXXXXXXX";
+    }
+  }, [tipoDocumento]);
+
+  const numberLabel = useMemo(() => {
+    switch (tipoDocumento?.value) {
+      case "1":
+        return "N° DNI";
+      case "4":
+        return "N° RUC";
+      case "3":
+        return "N° Pasaporte";
+      case "2":
+        return "N° Carnet de extranjería";
+      default:
+        return "Número de documento";
+    }
+  }, [tipoDocumento]);
+
   const handleLogin = () => {
+    if (userName.trim() === "" || password.trim() === "") {
+      setError("Por favor, ingresa tu número de documento y contraseña.");
+      return;
+    }
+
+    setError(null);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.replace("/(dashboard)");
-    }, 2000);
+    const tipoDocId = parseInt(tipoDocumento?.value || "1");
+    login(userName, password, tipoDocId)
+      .then((response) => {
+        if (response.data.success) {
+          const userData = response.data.data;
+          setUser({
+            id: userData.id,
+            name: userData.nombre,
+            dni: userData.dniruc,
+            username: userData.login,
+            email: userData.email,
+            phone: userData.telefono,
+            tipoDocId: userData.tipodoc_id,
+            tipo: userData.tipo,
+          });
+          setToken(userData.token);
+          setSignedIn(true);
+          router.replace("/(dashboard)");
+        } else {
+          setError(response.data.message || "Error al iniciar sesión");
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log("Login failed:", error.response?.data || error.message);
+        setError(
+          error.response?.data?.message ||
+            error.message ||
+            "Error al iniciar sesión",
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <KeyboardAvoidingWrapper>
-      <Card className="w-full max-w-md self-center my-auto">
+      <Card className="w-full self-center my-auto">
         <CardContent className="flex flex-col items-center relative w-full">
           {loading && (
             <View className="absolute w-full h-full flex flex-col flex-1 items-center justify-center z-50 bg-background/80">
@@ -42,8 +134,8 @@ export default function LoginScreen() {
                 autoPlay
                 loop
                 style={{
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                   alignSelf: "center",
                 }}
               />
@@ -60,24 +152,70 @@ export default function LoginScreen() {
               marginBottom: 20,
             }}
           />
+          {error && (
+            <Text className="bg-red-200 text-red-600 text-sm px-4 py-2 w-full border border-red-300 text-center mb-4 rounded-md">
+              {error}
+            </Text>
+          )}
           <View className="field mb-4">
-            <Label className="label-control">DNI</Label>
-            <Input
-              placeholder="DNI"
-              value={userName}
-              onChangeText={setUserName}
-              keyboardType="number-pad"
-            />
+            <Text className="label-control text-sm">
+              Tipo Documento
+              <Text className="text-destructive"> *</Text>
+            </Text>
+            <Select
+              value={tipoDocumento}
+              onValueChange={setTipoDocumento}
+              className="z-40"
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona un tipo de documento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Natural</SelectLabel>
+                  <SelectItem
+                    value="1"
+                    label="DOCUMENTO NACIONAL DE IDENTIDAD"
+                  />
+                  <SelectItem value="2" label="CARNET DE EXTRANJERÍA" />
+                  <SelectItem value="3" label="PASAPORTE" />
+                  <SelectLabel>Jurídica</SelectLabel>
+                  <SelectItem
+                    value="4"
+                    label="REGISTRO ÚNICO DE CONTRIBUYENTE"
+                  />
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </View>
-          <View className="field mb-4">
-            <Label className="label-control">Contraseña</Label>
-            <Input
-              placeholder="Contraseña"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+          <InputGroup
+            label={numberLabel}
+            placeholder={numberPlaceholder}
+            maxLength={maxLength}
+            required
+            containerClassName="w-full mb-4"
+            value={userName}
+            onChangeText={(text) => setUserName(text)}
+            keyboardType="number-pad"
+          />
+          <InputGroup
+            label="Contraseña"
+            placeholder="Contraseña"
+            required
+            containerClassName="w-full mb-4"
+            secureTextEntry={secureText}
+            suffix={
+              <TouchableOpacity className="pl-2">
+                {secureText ? (
+                  <LucideEye size={24} onPress={() => setSecureText(false)} />
+                ) : (
+                  <LucideEyeOff size={24} onPress={() => setSecureText(true)} />
+                )}
+              </TouchableOpacity>
+            }
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+          />
           <Button
             className="mb-4 w-full"
             onPress={handleLogin}

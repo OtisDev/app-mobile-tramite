@@ -11,3 +11,9 @@
    ```bash
    npx run start
    ```
+
+3. adb connect Bluestacks
+
+   ```bash
+   adb connect <IP_ADDRESS>:5556
+   ```

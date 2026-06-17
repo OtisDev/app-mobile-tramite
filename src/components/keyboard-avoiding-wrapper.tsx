@@ -27,7 +27,7 @@ export default function KeyboardAvoidingWrapper({
         contentInset={insets}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingTop: insets.top / 2,
+          paddingTop: insets.top,
           paddingBottom: insets.bottom,
         }}
         contentContainerClassName="px-4"

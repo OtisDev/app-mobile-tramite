@@ -27,8 +27,8 @@ export default function ActionBar({ title, goBack }: ActionBarProps) {
             <ChevronLeft className="mr-2 text-gray-800" size={24} />
           </TouchableOpacity>
         )}
-        <Text className="text-lg font-semibold text-gray-800">
-          {title || "STD - MDNCH"}
+        <Text className="text-lg font-semibold text-gray-800 truncate">
+          {title || "MUNICIPALIDAD DISTRITAL DE NUEVO CHIMBOTE"}
         </Text>
       </View>
     </SafeAreaView>
