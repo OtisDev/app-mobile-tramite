@@ -1,22 +1,43 @@
+import { listDocumentTypes } from "@/services/expedient.service";
 import { LucideSave } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 import Modal from "react-native-modal";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Text } from "../ui/text";
-import { Textarea } from "../ui/textarea";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { InputSelect, SelectOption } from "./ui/input-select";
+import { Label } from "./ui/label";
+import { Text } from "./ui/text";
+import { Textarea } from "./ui/textarea";
 
-export interface ExpedientFormModalProps {
+export interface ModalExpedientFormProps {
   isVisible: boolean;
   onClose: () => void;
 }
 
-export default function ExpedientFormModal({
+export default function ModalExpedientForm({
   isVisible,
   onClose,
-}: ExpedientFormModalProps) {
+}: ModalExpedientFormProps) {
+  const searchDocumentTypes = (query: string) => {
+    return new Promise<SelectOption[]>((resolve) => {
+      listDocumentTypes(query).then(({ data }) => {
+        if (data.success && data.data) {
+          const filtered = data.data.map((docType) => {
+            console.log(docType);
+            return {
+              label: "",
+              value: "",
+            } as SelectOption;
+          });
+          resolve([]);
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  };
+
   return (
     <Modal
       isVisible={isVisible}
@@ -26,9 +47,9 @@ export default function ExpedientFormModal({
       style={{ margin: 0 }}
     >
       <ScrollView>
-        <Card className="w-full">
+        <Card className="rounded-t-2xl rounded-b-none">
           <CardHeader>
-            <CardTitle>Nuevo Trámite</CardTitle>
+            <CardTitle className="text-lg">Nuevo Trámite</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <View className="field">
@@ -36,7 +57,7 @@ export default function ExpedientFormModal({
                 <Label className="label-control">Tipo documento</Label>
                 <Label className="label-control text-red-500">*</Label>
               </View>
-              <Input />
+              <InputSelect loadOptions={searchDocumentTypes} />
             </View>
             <View className="field">
               <View className="flex flex-row gap-2 items-center">

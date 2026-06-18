@@ -1,19 +1,11 @@
 import ActionBar from "@/components/action-bar";
+import SelectDocumentType from "@/components/shared/select-document-type";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { InputGroup } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
-import {
-  Option,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Option } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { LucideSearch, Save } from "lucide-react-native";
@@ -79,33 +71,11 @@ export default function RegisterScreen() {
             <CardTitle>Información Personal</CardTitle>
           </CardHeader>
           <CardContent>
-            <View className="field mb-4">
-              <Text className="label-control text-sm">
-                Tipo de documento
-                <Text className="text-destructive"> *</Text>
-              </Text>
-              <Select value={tipoDocumento} onValueChange={setTipoDocumento}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona un tipo de documento" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Natural</SelectLabel>
-                    <SelectItem
-                      value="1"
-                      label="DOCUMENTO NACIONAL DE IDENTIDAD"
-                    />
-                    <SelectItem value="2" label="CARNET DE EXTRANJERÍA" />
-                    <SelectItem value="3" label="PASAPORTE" />
-                    <SelectLabel>Jurídica</SelectLabel>
-                    <SelectItem
-                      value="4"
-                      label="REGISTRO ÚNICO DE CONTRIBUYENTE"
-                    />
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </View>
+            <SelectDocumentType
+              className="mb-4"
+              value={tipoDocumento}
+              onValueChange={setTipoDocumento}
+            />
             <InputGroup
               label={numberLabel}
               placeholder={numberPlaceholder}

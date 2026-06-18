@@ -1,18 +1,25 @@
 import { AnimatedIcon } from "@/components/animated-icon";
 import ButtonIcon from "@/components/button-icon";
+import ModalChangePassword from "@/components/modal-change-password";
+import ModalExpedientForm from "@/components/modal-expedient-form";
+import ModalUserInfo from "@/components/modal-user-info";
 import { ThemedView } from "@/components/themed-view";
-import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "expo-router";
 import {
-  LucideBook,
+  LucideAsterisk,
+  LucideClock,
+  LucideEdit3,
+  LucideIcon,
   LucideInfo,
   LucideLogOut,
   LucidePlus,
   LucideSearch,
 } from "lucide-react-native";
+import { useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import {
   SafeAreaView,
@@ -22,11 +29,9 @@ import {
 interface ButtonAction {
   key: string;
   label: string;
-  icon?: React.ReactNode;
+  icon?: LucideIcon;
   onPress: () => void;
 }
-
-const colorIcon = "#193067";
 
 export default function DashboardHomeScreen() {
   const safeAreaInsets = useSafeAreaInsets();
@@ -37,38 +42,56 @@ export default function DashboardHomeScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { width } = useWindowDimensions();
+  const [showUserInfoModal, setShowUserInfoModal] = useState<boolean>(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] =
+    useState<boolean>(false);
+  const [showExpedientForm, setShowExpedientForm] = useState<boolean>(false);
 
   const actions: ButtonAction[] = [
     {
-      key: "new-tramite",
-      label: "Nuevo trámite",
-      icon: <LucidePlus size={32} color={colorIcon} />,
+      key: "update-info",
+      label: "Actualizar información",
+      icon: LucideEdit3,
       onPress: () => {
-        // Handle button press
+        setShowUserInfoModal(true);
+      },
+    },
+    {
+      key: "change-password",
+      label: "Cambiar contraseña",
+      icon: LucideAsterisk,
+      onPress: () => {
+        setShowChangePasswordModal(true);
+      },
+    },
+    {
+      key: "new-tramite",
+      label: "Nuevo\ntrámite",
+      icon: LucidePlus,
+      onPress: () => {
+        setShowExpedientForm(true);
       },
     },
     {
       key: "search-tramite",
-      label: "Buscar trámite",
-      icon: (
-        <LucideSearch size={32} className="text-primary" color={colorIcon} />
-      ),
+      label: "Consultar\ntrámite",
+      icon: LucideSearch,
       onPress: () => {
-        // Handle button press
+        router.push("/(dashboard)/explore");
       },
     },
     {
-      key: "my-tramites",
-      label: "Mis trámites",
-      icon: <LucideBook size={32} color={colorIcon} />,
+      key: "take-out-your-trash",
+      label: "Saca tu\nbasura",
+      icon: LucideClock,
       onPress: () => {
         // Handle button press
       },
     },
     {
       key: "logout",
-      label: "Cerrar sesión",
-      icon: <LucideLogOut size={32} color={colorIcon} />,
+      label: "Cerrar\nsesión",
+      icon: LucideLogOut,
       onPress: () => {
         logout();
         router.replace("/login");
@@ -87,9 +110,6 @@ export default function DashboardHomeScreen() {
           paddingRight: insets.right,
         }}
       >
-        <Alert icon={LucideInfo} className="mb-4">
-          <AlertTitle></AlertTitle>
-        </Alert>
         <View className="gap-4 items-center justify-center my-6">
           <AnimatedIcon />
           <View className="flex items-center gap-1 my-4">
@@ -104,6 +124,15 @@ export default function DashboardHomeScreen() {
             </Text>
           </View>
         </View>
+        <View className="w-full px-6">
+          <Alert icon={LucideInfo} className="mb-4">
+            <AlertTitle>Bienvenido</AlertTitle>
+            <AlertDescription className="text-justify break-all">
+              {user?.name}, bienvenido a la aplicación de la Municipalidad
+              Distrital de Nuevo Chimbote.
+            </AlertDescription>
+          </Alert>
+        </View>
         <View className="flex-1 w-full mt-6">
           <FlatList
             data={actions}
@@ -116,15 +145,29 @@ export default function DashboardHomeScreen() {
                 style={{
                   width: (width - Spacing.four * 2 - Spacing.four * 2) / 3,
                 }}
-              >
-                {item.icon}
-              </ButtonIcon>
+                icon={item.icon}
+              ></ButtonIcon>
             )}
-            columnWrapperClassName="gap-4 px-5"
-            contentContainerClassName="gap-4"
+            columnWrapperClassName="gap-6 px-6"
+            contentContainerClassName="gap-6"
           />
         </View>
       </SafeAreaView>
+
+      <ModalExpedientForm
+        isVisible={showExpedientForm}
+        onClose={() => setShowExpedientForm(false)}
+      />
+
+      <ModalUserInfo
+        isVisible={showUserInfoModal}
+        onClose={() => setShowUserInfoModal(false)}
+      />
+
+      <ModalChangePassword
+        isVisible={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+      />
     </ThemedView>
   );
 }

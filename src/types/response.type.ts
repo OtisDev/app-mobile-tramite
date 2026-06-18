@@ -18,3 +18,9 @@ export interface PaginatedResponse<T> extends Response<T> {
         last_page: number;
     };
 }
+
+export interface PaginatedRequest {
+    per_page?: number;
+    page?: number;
+    result_type?: 'collection' | 'list' | 'paginated';
+}

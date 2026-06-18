@@ -35,7 +35,12 @@ export function InputGroup({
   return (
     <View className={cn("gap-2", containerClassName)}>
       {label && (
-        <Text className="text-sm font-medium text-foreground">
+        <Text
+          className={cn(
+            "text-sm font-medium text-foreground",
+            error && "text-destructive",
+          )}
+        >
           {label}
           {required && <Text className="text-destructive"> *</Text>}
         </Text>

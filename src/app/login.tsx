@@ -1,17 +1,9 @@
 import KeyboardAvoidingWrapper from "@/components/keyboard-avoiding-wrapper";
+import SelectDocumentType from "@/components/shared/select-document-type";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { InputGroup } from "@/components/ui/input-group";
-import {
-  Option,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Option } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import "@/global.css";
@@ -31,7 +23,7 @@ export default function LoginScreen() {
     bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
   };
   const [tipoDocumento, setTipoDocumento] = useState<Option>({
-    label: "DNI",
+    label: "DOCUMENTO NACIONAL DE IDENTIDAD",
     value: "1",
   });
   const [userName, setUserName] = useState<string>("");
@@ -93,14 +85,18 @@ export default function LoginScreen() {
         if (response.data.success) {
           const userData = response.data.data;
           setUser({
-            id: userData.id,
+            id: userData.n_solicitante,
             name: userData.nombre,
+            firstName: userData.nombres,
+            lastName: userData.apepaterno,
+            secondLastName: userData.apematerno,
             dni: userData.dniruc,
             username: userData.login,
             email: userData.email,
             phone: userData.telefono,
             tipoDocId: userData.tipodoc_id,
             tipo: userData.tipo,
+            address: userData.direccion,
           });
           setToken(userData.token);
           setSignedIn(true);
@@ -157,37 +153,12 @@ export default function LoginScreen() {
               {error}
             </Text>
           )}
-          <View className="field mb-4">
-            <Text className="label-control text-sm">
-              Tipo Documento
-              <Text className="text-destructive"> *</Text>
-            </Text>
-            <Select
-              value={tipoDocumento}
-              onValueChange={setTipoDocumento}
-              className="z-40"
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un tipo de documento" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Natural</SelectLabel>
-                  <SelectItem
-                    value="1"
-                    label="DOCUMENTO NACIONAL DE IDENTIDAD"
-                  />
-                  <SelectItem value="2" label="CARNET DE EXTRANJERÍA" />
-                  <SelectItem value="3" label="PASAPORTE" />
-                  <SelectLabel>Jurídica</SelectLabel>
-                  <SelectItem
-                    value="4"
-                    label="REGISTRO ÚNICO DE CONTRIBUYENTE"
-                  />
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </View>
+          <SelectDocumentType
+            className="mb-4"
+            selectClassName="z-40"
+            value={tipoDocumento}
+            onValueChange={setTipoDocumento}
+          />
           <InputGroup
             label={numberLabel}
             placeholder={numberPlaceholder}
