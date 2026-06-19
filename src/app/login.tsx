@@ -97,8 +97,10 @@ export default function LoginScreen() {
             tipoDocId: userData.tipodoc_id,
             tipo: userData.tipo,
             address: userData.direccion,
+            pwd: userData.clave,
+            pwd_web: userData.clave_web,
           });
-          setToken(userData.token);
+          setToken(userData.guest_token.token);
           setSignedIn(true);
           router.replace("/(dashboard)");
         } else {

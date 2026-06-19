@@ -20,6 +20,7 @@ export const useAuthStore = create<AuthStore>()(
         (set) => ({
             signedIn: false,
             token: null,
+            refreshToken: null,
             user: null,
 
             setToken: (token: string) => set({ token }),

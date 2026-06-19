@@ -10,7 +10,7 @@ export interface NullableResponse<T> {
     data?: T | null;
 }
 
-export interface PaginatedResponse<T> extends Response<T> {
+export interface PaginatedResponse<T> extends Response<T[]> {
     meta: {
         total: number;
         per_page: number;

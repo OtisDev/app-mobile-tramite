@@ -1,18 +1,23 @@
+import { updatePassword } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LucideSave } from "lucide-react-native";
-import { useState } from "react";
+import { LucideAlertTriangle, LucideSave } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { View } from "react-native";
 import Modal from "react-native-modal";
 import { z } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "./ui/card";
 import { InputGroup } from "./ui/input-group";
+import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
 import { Text } from "./ui/text";
 
 export interface ModalChangePasswordProps {
@@ -40,8 +45,11 @@ export default function ModalChangePassword({
   onClose,
 }: ModalChangePasswordProps) {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const {
     control,
+    reset,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordForm>({
@@ -54,8 +62,34 @@ export default function ModalChangePassword({
   });
 
   const onSubmit = (data: ChangePasswordForm) => {
-    setLoading(true);
+    try {
+      if (data.newPassword !== data.confirmNewPassword) {
+        setError("La nueva contraseña y su confirmación no coinciden");
+        return;
+      }
+
+      setLoading(true);
+
+      updatePassword(data.currentPassword, data.newPassword)
+        .then(() => {
+          setLoading(false);
+          onClose();
+        })
+        .finally(() => setLoading(false));
+    } catch (err) {
+      setLoading(false);
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error inesperado",
+      );
+    }
   };
+
+  useEffect(() => {
+    if (!isVisible) {
+      setError(null);
+      reset();
+    }
+  }, [isVisible]);
 
   return (
     <Modal
@@ -69,13 +103,23 @@ export default function ModalChangePassword({
           <CardTitle className="text-lg">Cambiar contraseña</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          {error && (
+            <Alert
+              icon={LucideAlertTriangle}
+              variant="destructive"
+              className="bg-red-100 border-destructive"
+            >
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <Controller
             control={control}
             name="currentPassword"
             render={({ field }) => (
               <InputGroup
                 label="Contraseña actual"
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 required
                 value={field.value}
                 onChangeText={field.onChange}
@@ -89,7 +133,7 @@ export default function ModalChangePassword({
             render={({ field }) => (
               <InputGroup
                 label="Nueva contraseña"
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 required
                 value={field.value}
                 onChangeText={field.onChange}
@@ -103,7 +147,7 @@ export default function ModalChangePassword({
             render={({ field }) => (
               <InputGroup
                 label="Confirmar nueva contraseña"
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 required
                 value={field.value}
                 onChangeText={field.onChange}
@@ -111,6 +155,21 @@ export default function ModalChangePassword({
               />
             )}
           />
+          <View className="flex flex-row items-center gap-2">
+            <Switch
+              checked={showPassword}
+              onCheckedChange={setShowPassword}
+              nativeID="show-passwords"
+              id="show-passwords"
+            />
+            <Label
+              htmlFor="show-passwords"
+              nativeID="show-passwords"
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              Mostrar contraseñas
+            </Label>
+          </View>
         </CardContent>
         <CardFooter className="flex flex-row justify-between gap-2">
           <Button variant="outline" onPress={onClose}>

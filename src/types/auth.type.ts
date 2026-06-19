@@ -11,4 +11,6 @@ export interface User {
   address?: string | null;
   tipoDocId: number;
   tipo?: string;
+  pwd?: string;
+  pwd_web?: string;
 }

@@ -2,6 +2,7 @@ import { AnimatedIcon } from "@/components/animated-icon";
 import ButtonIcon from "@/components/button-icon";
 import ModalChangePassword from "@/components/modal-change-password";
 import ModalExpedientForm from "@/components/modal-expedient-form";
+import ModalTakeOutYourTrash from "@/components/modal-saca-tu-basura";
 import ModalUserInfo from "@/components/modal-user-info";
 import { ThemedView } from "@/components/themed-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -46,6 +47,8 @@ export default function DashboardHomeScreen() {
   const [showChangePasswordModal, setShowChangePasswordModal] =
     useState<boolean>(false);
   const [showExpedientForm, setShowExpedientForm] = useState<boolean>(false);
+  const [showTakeOutYourTrashModal, setShowTakeOutYourTrashModal] =
+    useState<boolean>(false);
 
   const actions: ButtonAction[] = [
     {
@@ -85,7 +88,7 @@ export default function DashboardHomeScreen() {
       label: "Saca tu\nbasura",
       icon: LucideClock,
       onPress: () => {
-        // Handle button press
+        setShowTakeOutYourTrashModal(true);
       },
     },
     {
@@ -167,6 +170,11 @@ export default function DashboardHomeScreen() {
       <ModalChangePassword
         isVisible={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
+      />
+
+      <ModalTakeOutYourTrash
+        isVisible={showTakeOutYourTrashModal}
+        onClose={() => setShowTakeOutYourTrashModal(false)}
       />
     </ThemedView>
   );

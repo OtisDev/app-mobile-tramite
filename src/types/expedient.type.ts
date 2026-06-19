@@ -11,4 +11,7 @@ export default interface Expedient {
     asunto: string;
     idestado: string;
     item_estado: number;
+    cod_tipodoc: string;
+    siglas_doc: string;
+    n_solicitante: number;
 }

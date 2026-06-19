@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Fragment, useState } from "react";
 import { View } from "react-native";
-import { Dropdown } from "react-native-element-dropdown";
+import { InputSelect } from "../ui/input-select";
 import {
   Option,
   Select,
@@ -70,8 +70,6 @@ export default function SelectDocumentType({
     onValueChange?.(option);
   };
 
-  const handleOnChangeModal = (value: string) => {};
-
   return (
     <View className={cn("field", className)}>
       <View className="flex flex-row gap-2 items-center">
@@ -113,23 +111,14 @@ export default function SelectDocumentType({
         </Select>
       )}
       {inModal && (
-        <Dropdown
-          data={data.flatMap((group) => group.items)}
-          labelField="label"
-          valueField="value"
+        <InputSelect
+          data={data
+            .flatMap((group) => group.items)
+            .filter((option) => option !== undefined)}
           placeholder="Seleccione"
-          value={selectedDocumentType?.value}
-          onChange={handleOnChangeModal}
-          style={{
-            borderColor: "#E5E5E5",
-            borderWidth: 1,
-            borderRadius: 8,
-            paddingHorizontal: 14,
-            paddingVertical: 8,
-          }}
-          containerStyle={{
-            borderRadius: 8,
-          }}
+          value={selectedDocumentType}
+          onChange={(selected) => handleOnChange(selected as Option)}
+          searchable={false}
         />
       )}
 

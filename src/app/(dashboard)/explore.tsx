@@ -2,11 +2,15 @@ import { SymbolView } from "expo-symbols";
 import { Platform, Pressable, ScrollView, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import CardExpedient from "@/components/card-expedient";
 import { ExternalLink } from "@/components/external-link";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuthStore } from "@/stores/auth.store";
+import Expedient from "@/types/expedient.type";
+import { useEffect, useState } from "react";
 
 export default function TabTwoScreen() {
   const safeAreaInsets = useSafeAreaInsets();
@@ -15,6 +19,7 @@ export default function TabTwoScreen() {
     bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
   };
   const theme = useTheme();
+  const { user } = useAuthStore();
 
   const contentPlatformStyle = Platform.select({
     android: {
@@ -28,6 +33,14 @@ export default function TabTwoScreen() {
       paddingBottom: Spacing.four,
     },
   });
+
+  const [expedientes, setExpedientes] = useState<Expedient[]>([]);
+
+  const fetchExpedientes = () => {};
+
+  useEffect(() => {
+    fetchExpedientes();
+  }, []);
 
   return (
     <ScrollView
@@ -58,6 +71,14 @@ export default function TabTwoScreen() {
               </ThemedView>
             </Pressable>
           </ExternalLink>
+        </ThemedView>
+        <ThemedView style={styles.sectionsWrapper}>
+          {expedientes.map((expediente) => (
+            <CardExpedient
+              key={expediente.expediente_id.toString()}
+              item={expediente}
+            />
+          ))}
         </ThemedView>
       </ThemedView>
     </ScrollView>
@@ -101,19 +122,5 @@ const styles = StyleSheet.create({
     gap: Spacing.five,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: "center",
-  },
-  imageTutorial: {
-    width: "100%",
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-  },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
   },
 });
