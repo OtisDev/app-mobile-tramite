@@ -16,12 +16,12 @@ const statusColors: Record<number, StatusColor> = {
   1: {
     value: 1,
     label: "REGISTRADO",
-    className: "bg-green-200 text-green-800",
+    className: "bg-gray-200 text-gray-800",
   },
   2: {
     value: 2,
     label: "DERIVADO",
-    className: "bg-yellow-200 text-yellow-800",
+    className: "bg-blue-200 text-blue-800",
   },
   3: {
     value: 3,
@@ -31,7 +31,7 @@ const statusColors: Record<number, StatusColor> = {
   4: {
     value: 4,
     label: "ATENDIDO",
-    className: "bg-purple-200 text-purple-800",
+    className: "bg-green-200 text-green-800",
   },
   5: {
     value: 5,
@@ -74,12 +74,12 @@ export default function ExpedientBadgeStatus({
   return (
     <Text
       className={cn(
-        "text-xs px-2 py-1 font-semibold",
+        "text-xs px-3 py-1.5 font-semibold",
         statusColor?.className || "bg-gray-200",
         className,
       )}
     >
-      {statusColor?.label}
+      {statusColor?.label || "DESCONOCIDO"}
     </Text>
   );
 }

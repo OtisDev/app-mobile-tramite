@@ -6,7 +6,7 @@ export function createAxiosClient(baseURL?: string, timeout?: number | string) {
 
   if (typeof timeout === 'string') {
     if(/^\d+$/.test(timeout)) {
-      parsedTimeout = parseInt(timeout, 10);
+      parsedTimeout = parseInt(timeout);
     }
   } else if (typeof timeout === 'number') {
     parsedTimeout = timeout;
@@ -74,7 +74,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/*api.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
 
   async (error) => {
@@ -134,4 +134,4 @@ api.interceptors.request.use(
 
     return Promise.reject(error);
   }
-);*/
+);

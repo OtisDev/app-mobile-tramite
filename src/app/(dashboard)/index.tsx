@@ -20,7 +20,7 @@ import {
   LucidePlus,
   LucideSearch,
 } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import {
   SafeAreaView,
@@ -41,7 +41,7 @@ export default function DashboardHomeScreen() {
     bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
   };
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, signedIn } = useAuthStore();
   const { width } = useWindowDimensions();
   const [showUserInfoModal, setShowUserInfoModal] = useState<boolean>(false);
   const [showChangePasswordModal, setShowChangePasswordModal] =
@@ -101,6 +101,13 @@ export default function DashboardHomeScreen() {
       },
     },
   ];
+
+  useEffect(() => {
+    if (!signedIn) {
+      logout();
+      router.replace("/login");
+    }
+  }, [signedIn]);
 
   return (
     <ThemedView className="flex-1 flex items-center">

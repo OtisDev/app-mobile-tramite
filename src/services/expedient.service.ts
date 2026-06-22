@@ -22,5 +22,11 @@ export function listDocumentTypes(name?: string, req?: PaginatedRequest) {
 }
 
 export function listExpedients(filters?: ExpedientFilterRequest) {
-    return api.get<PaginatedResponse<Expedient>>('/expedients', { params: filters });
+    return api.get<PaginatedResponse<Expedient>>('/expedients', { 
+        params: {
+            ...filters,
+            page: filters?.page || 1,
+            per_page: filters?.per_page || 20,
+        } 
+    });
 }

@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/themed-view";
 import * as Location from "expo-location";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 import MapView, { Marker, UrlTile } from "react-native-maps";
 
@@ -31,6 +31,10 @@ export default function SportsVenuesScreen() {
       console.log(location.coords);
     }
   };
+
+  useEffect(() => {
+    //getUserLocation();
+  }, []);
 
   return (
     <ThemedView className="flex-1">

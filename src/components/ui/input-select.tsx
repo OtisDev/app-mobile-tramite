@@ -2,7 +2,7 @@ import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import LottieView from "lottie-react-native";
 import { LucideCheck, LucideSearch, LucideX } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -46,6 +46,10 @@ export function InputSelect({
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<SelectOption[]>(data);
   const [proxyValue, setProxyValue] = useState(value);
+
+  useEffect(() => {
+    setItems(data);
+  }, [data]);
 
   const fetchItems = async (term: string = "") => {
     try {
@@ -144,8 +148,8 @@ export function InputSelect({
                 <Pressable
                   className="px-6 py-4 border-b border-border flex flex-row justify-between items-center"
                   onPress={() => {
-                    setProxyValue(item);
                     onChange?.(item);
+                    setProxyValue(item);
                     setOpen(false);
                   }}
                 >

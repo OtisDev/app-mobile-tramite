@@ -14,4 +14,8 @@ export default interface Expedient {
     cod_tipodoc: string;
     siglas_doc: string;
     n_solicitante: number;
+    fecha_doc: string;
+    idareaini?: string;
+    idareafin?: string;
+    document_type?: DocumentType;
 }

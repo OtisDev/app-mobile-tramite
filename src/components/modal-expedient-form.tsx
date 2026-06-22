@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { listDocumentTypes } from "@/services/expedient.service";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { File } from "expo-file-system";
 import { LucideSave } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -15,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Input } from "./ui/input";
+import FilePicker from "./ui/file-picker";
 import { InputGroup } from "./ui/input-group";
 import { InputSelect, SelectOption } from "./ui/input-select";
 import { Label } from "./ui/label";
@@ -37,6 +38,12 @@ const ExpedientFormSchema = z.object({
   observacion: z.string().nullable().optional(),
   folios: z.number().min(1, "El número de folios es requerido"),
   fecha_doc: z.string(),
+  documento: z
+    .instanceof(File, {
+      when: (file) => file !== null,
+      message: "El documento es requerido",
+    })
+    .nonoptional(),
 });
 
 type ExpedientForm = z.infer<typeof ExpedientFormSchema>;
@@ -46,11 +53,16 @@ export default function ModalExpedientForm({
   onClose,
 }: ModalExpedientFormProps) {
   const [documentTypes, setDocumentTypes] = useState<SelectOption[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [file, setFile] = useState<File | null>(null);
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
+    setValue,
+    setError,
+    resetDefaultValues,
   } = useForm<ExpedientForm>({
     resolver: zodResolver(ExpedientFormSchema),
     defaultValues: {
@@ -63,6 +75,7 @@ export default function ModalExpedientForm({
       observacion: null,
       folios: 1,
       fecha_doc: new Date().toISOString().split("T")[0],
+      documento: {} as File,
     },
   });
 
@@ -80,6 +93,18 @@ export default function ModalExpedientForm({
         setDocumentTypes([]);
       }
     });
+  };
+
+  const onSubmit = (data: ExpedientForm) => {
+    if (file === null || file === undefined) {
+      setError("documento", {
+        type: "manual",
+        message: "El documento es requerido",
+      });
+      return;
+    }
+
+    console.log("Form data:", data);
   };
 
   useEffect(() => {
@@ -208,16 +233,54 @@ export default function ModalExpedientForm({
                 </View>
               )}
             />
-            <View className="field">
-              <Label className="label-control">Observación</Label>
-              <Textarea multiline={true} />
-            </View>
+            <Controller
+              control={control}
+              name="observacion"
+              render={({ field }) => (
+                <View className="field">
+                  <Label className="label-control">Observación</Label>
+                  <Textarea
+                    multiline={true}
+                    value={field.value || ""}
+                    onChangeText={field.onChange}
+                    onBlur={field.onBlur}
+                    aria-disabled={field.disabled}
+                    className={cn(errors.observacion && "border-destructive")}
+                  />
+                  {errors.observacion && (
+                    <Text className="text-xs text-destructive">
+                      {errors.observacion.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+
             <View className="field">
               <View className="flex flex-row gap-2 items-center">
-                <Label className="label-control">Documento</Label>
+                <Text
+                  className={cn(
+                    "label-control text-sm",
+                    errors.documento && "text-destructive",
+                  )}
+                >
+                  Documento
+                </Text>
                 <Label className="label-control text-red-500">*</Label>
               </View>
-              <Input />
+              <FilePicker
+                type={["application/pdf"]}
+                onSelected={(files) => {
+                  if (files.length > 0) {
+                    console.log("Selected file:", files[0].uri);
+                  }
+                }}
+              />
+              {errors.documento && (
+                <Text className="text-xs text-destructive">
+                  {errors.documento.message}
+                </Text>
+              )}
             </View>
           </CardContent>
           <CardFooter className="flex flex-row justify-between gap-2">
@@ -225,8 +288,8 @@ export default function ModalExpedientForm({
               <Text>Cancelar</Text>
             </Button>
             <Button
-              disabled={isSubmitting}
-              onPress={handleSubmit((data) => console.log(data))}
+              disabled={isSubmitting || loading}
+              onPress={handleSubmit(onSubmit)}
             >
               <LucideSave
                 className="mr-2 text-white"
