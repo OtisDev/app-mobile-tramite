@@ -9,9 +9,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import CardExpedient from "@/components/card-expedient";
 import ModalExpedientForm from "@/components/modal-expedient-form";
-import ModalPreviewPdf, { FilePreview } from "@/components/modal-preview-pdf";
+import ModalPreviewPdf, {
+  PdfPreviewProps,
+} from "@/components/modal-preview-pdf";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InputGroup } from "@/components/ui/input-group";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
@@ -21,8 +24,8 @@ import { useAuthStore } from "@/stores/auth.store";
 import Expedient from "@/types/expedient.type";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
-import { LucideSearch } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { LucideInfo, LucideSearch, LucideX } from "lucide-react-native";
+import { useCallback, useEffect, useState } from "react";
 import { RefreshControl } from "react-native";
 
 export default function TabTwoScreen() {
@@ -37,8 +40,6 @@ export default function TabTwoScreen() {
   const [showModalExedientForm, setShowModalExedientForm] =
     useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [showModalPreviewPdf, setShowModalPreviewPdf] =
-    useState<boolean>(false);
 
   const contentPlatformStyle = Platform.select({
     android: {
@@ -54,16 +55,18 @@ export default function TabTwoScreen() {
   });
 
   const [expedientes, setExpedientes] = useState<Expedient[]>([]);
-  const [selectedExpedient, setSelectedExpedient] =
-    useState<FilePreview | null>(null);
   const [anio, setAnio] = useState<string>(new Date().getFullYear().toString());
   const [nExpediente, setNExpediente] = useState<string>("");
+  const [pdfPreviewProps, setPdfPreviewProps] =
+    useState<PdfPreviewProps | null>(null);
+  const [showModalPreviewPdf, setShowModalPreviewPdf] =
+    useState<boolean>(false);
 
-  const fetchExpedientes = () => {
+  const fetchExpedientes = useCallback(() => {
     setRefreshing(true);
     listExpedients({
       n_solicitante: user?.id,
-      codigo: nExpediente ? parseInt(nExpediente) : undefined,
+      codigo: nExpediente.length > 0 ? parseInt(nExpediente) : undefined,
       anio: anio,
       per_page: 20,
       screen: 5,
@@ -77,7 +80,7 @@ export default function TabTwoScreen() {
         }
       })
       .finally(() => setRefreshing(false));
-  };
+  }, [anio, nExpediente, user?.dni, user?.id]);
 
   const handleOpenExpedientForm = () => {
     setShowModalExedientForm(true);
@@ -87,23 +90,28 @@ export default function TabTwoScreen() {
     item: Expedient,
     action: "history" | "ticket",
   ) => {
-    setShowModalPreviewPdf(true);
-
     switch (action) {
       case "history":
-        setSelectedExpedient({
-          title: `${item.document_type?.nom_tipodoc} N° ${item.n_expediente}-${item.ano_eje}`,
+        setPdfPreviewProps({
+          title: "Historial del Expediente",
+          fileName: `historial-${item.ano_eje}-${item.n_expediente}.pdf`,
           url: `${process.env.EXPO_PUBLIC_API_URL}/pdf-expedient/history/${item.ano_eje}/${item.n_expediente}`,
-          fileName: `history_${item.n_expediente}-${item.ano_eje}-history.pdf`,
         });
         break;
       case "ticket":
-        setSelectedExpedient({
-          title: `${item.document_type?.nom_tipodoc} N° ${item.n_expediente}-${item.ano_eje}`,
+        setPdfPreviewProps({
+          title: "Ticket del Expediente",
+          fileName: `ticket-${item.ano_eje}-${item.n_expediente}.pdf`,
           url: `${process.env.EXPO_PUBLIC_API_URL}/pdf-expedient/ticket/${item.ano_eje}/${item.n_expediente}`,
-          fileName: `ticket_${item.n_expediente}-${item.ano_eje}-ticket.pdf`,
         });
         break;
+      default:
+        setPdfPreviewProps(null);
+        break;
+    }
+
+    if (action === "history" || action === "ticket") {
+      setShowModalPreviewPdf(true);
     }
   };
 
@@ -165,20 +173,44 @@ export default function TabTwoScreen() {
                 placeholder="N° de Expediente"
                 keyboardType="number-pad"
                 suffix={
-                  <Pressable
-                    onPress={fetchExpedientes}
-                    style={({ pressed }) => pressed && styles.pressed}
-                    className="py-1 pl-1"
-                  >
-                    <LucideSearch size={20} />
-                  </Pressable>
+                  <View className="flex flex-row items-center gap-2">
+                    {nExpediente.length > 0 && (
+                      <Pressable
+                        onPress={() => setNExpediente("")}
+                        style={({ pressed }) => pressed && styles.pressed}
+                        className="py-1 pl-1"
+                      >
+                        <LucideX
+                          size={20}
+                          className="text-gray-600"
+                          style={{ opacity: 0.8 }}
+                        />
+                      </Pressable>
+                    )}
+                    <Pressable
+                      onPress={() => fetchExpedientes()}
+                      style={({ pressed }) => pressed && styles.pressed}
+                      className="py-1 pl-2 border-l border-border h-10 items-center justify-center"
+                    >
+                      <LucideSearch size={20} />
+                    </Pressable>
+                  </View>
                 }
               />
             </View>
           </ThemedView>
-          <ThemedView className="relative" style={styles.sectionsWrapper}>
+          <View className="px-6 mb-4">
+            <Alert icon={LucideInfo}>
+              <AlertTitle>Importante</AlertTitle>
+              <AlertDescription>
+                Utilice su número de DNI/RUC/CE como contraseña para abrir los
+                documentos PDF de sus trámites descargados.
+              </AlertDescription>
+            </Alert>
+          </View>
+          <View className="relative flex-1" style={styles.sectionsWrapper}>
             {refreshing && (
-              <View className="absolute inset-0 top-0 w-full h-full bg-white/80 z-50 flex items-center justify-center">
+              <View className="absolute w-full h-full bg-white/80 z-50 flex-col items-center justify-center py-20">
                 <LottieView
                   source={require("@/assets/animations/Loading.json")}
                   autoPlay
@@ -202,25 +234,42 @@ export default function TabTwoScreen() {
                 onPress={handleOnPress}
               />
             ))}
-          </ThemedView>
+            {expedientes.length === 0 && !refreshing && (
+              <View className="flex-1 flex flex-col items-center justify-center py-20">
+                <LottieView
+                  source={require("@/assets/animations/NotFound.json")}
+                  autoPlay
+                  loop
+                  style={{
+                    width: 220,
+                    height: 220,
+                    alignSelf: "center",
+                    marginTop: -20,
+                    marginBottom: -20,
+                  }}
+                />
+                <Text className="text-lg text-muted-foreground">
+                  No se han encontrado trámites
+                </Text>
+              </View>
+            )}
+          </View>
         </ThemedView>
       </ScrollView>
 
       <ModalExpedientForm
         isVisible={showModalExedientForm}
         onClose={() => setShowModalExedientForm(false)}
+        onSuccess={() => fetchExpedientes()}
       />
 
-      {selectedExpedient && (
+      {pdfPreviewProps && (
         <ModalPreviewPdf
-          isVisible={showModalPreviewPdf}
-          url={selectedExpedient.url}
-          title={selectedExpedient.title}
-          fileName={selectedExpedient.fileName}
-          onClose={() => {
-            setSelectedExpedient(null);
-            setShowModalPreviewPdf(false);
-          }}
+          title={pdfPreviewProps.title || "Vista previa del PDF"}
+          fileName={pdfPreviewProps.fileName || "documento.pdf"}
+          url={pdfPreviewProps.url}
+          onClose={() => setPdfPreviewProps(null)}
+          isVisible={showModalPreviewPdf && pdfPreviewProps !== null}
         />
       )}
     </>

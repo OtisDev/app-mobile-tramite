@@ -54,6 +54,10 @@ const buttonVariants = cva(
           "bg-gray-500 active:bg-gray-600 shadow-sm shadow-black/5",
           Platform.select({ web: "hover:bg-gray-600" }),
         ),
+        dark: cn(
+          "bg-gray-800 active:bg-gray-900 shadow-sm shadow-black/5",
+          Platform.select({ web: "hover:bg-gray-900" }),
+        ),
       },
       size: {
         default: cn(
@@ -104,6 +108,7 @@ const buttonTextVariants = cva(
         teal: "text-gray-50",
         purple: "text-gray-50",
         gray: "text-gray-700",
+        dark: "text-gray-300",
       },
       size: {
         default: "",

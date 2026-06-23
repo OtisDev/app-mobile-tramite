@@ -1,5 +1,5 @@
 import { api } from "@/lib/http";
-import { PaginatedRequest, PaginatedResponse } from "@/types";
+import { PaginatedRequest, PaginatedResponse, Response } from "@/types";
 import Expedient, { DocumentType } from "@/types/expedient.type";
 
 export interface ExpedientFilterRequest extends PaginatedRequest {
@@ -28,5 +28,13 @@ export function listExpedients(filters?: ExpedientFilterRequest) {
             page: filters?.page || 1,
             per_page: filters?.per_page || 20,
         } 
+    });
+}
+
+export function storeExpedient(formData: FormData) {
+    return api.post<Response<Expedient>>('/expedients/mpv', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
     });
 }

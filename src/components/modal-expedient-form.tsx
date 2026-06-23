@@ -1,13 +1,18 @@
-import { cn } from "@/lib/utils";
-import { listDocumentTypes } from "@/services/expedient.service";
+import { cn, toFormData } from "@/lib/utils";
+import {
+  listDocumentTypes,
+  storeExpedient,
+} from "@/services/expedient.service";
+import { useAuthStore } from "@/stores/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { File } from "expo-file-system";
-import { LucideSave } from "lucide-react-native";
+import { LucideAlertTriangle, LucideSave } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
 import Modal from "react-native-modal";
+import Toast from "react-native-toast-message";
 import { z } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -26,11 +31,12 @@ import { Textarea } from "./ui/textarea";
 export interface ModalExpedientFormProps {
   isVisible: boolean;
   onClose: () => void;
+  onSuccess?: (result?: any) => void;
 }
 
 const ExpedientFormSchema = z.object({
   expediente_id: z.number().min(0, "El ID del expediente es requerido"),
-  ano_eje: z.string().min(2025, "El año es requerido"),
+  ano_eje: z.string().min(4, "El año es requerido"),
   n_expediente: z.number().min(0, "El número de expediente es requerido"),
   asunto: z.string().min(1, "El asunto es requerido"),
   cod_tipodoc: z.string().min(1, "El tipo de documento es requerido"),
@@ -38,12 +44,15 @@ const ExpedientFormSchema = z.object({
   observacion: z.string().nullable().optional(),
   folios: z.number().min(1, "El número de folios es requerido"),
   fecha_doc: z.string(),
-  documento: z
-    .instanceof(File, {
-      when: (file) => file !== null,
-      message: "El documento es requerido",
-    })
-    .nonoptional(),
+  documento: z.object(
+    {
+      uri: z.string().min(1, "El documento es requerido"),
+      type: z.string().min(1, "El tipo de documento es requerido"),
+      name: z.string().min(1, "El nombre del documento es requerido"),
+      size: z.number().min(1, "El tamaño del documento es requerido"),
+    },
+    "El documento es requerido",
+  ),
 });
 
 type ExpedientForm = z.infer<typeof ExpedientFormSchema>;
@@ -51,18 +60,17 @@ type ExpedientForm = z.infer<typeof ExpedientFormSchema>;
 export default function ModalExpedientForm({
   isVisible,
   onClose,
+  onSuccess,
 }: ModalExpedientFormProps) {
+  const { user } = useAuthStore();
   const [documentTypes, setDocumentTypes] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-    setValue,
-    setError,
-    resetDefaultValues,
   } = useForm<ExpedientForm>({
     resolver: zodResolver(ExpedientFormSchema),
     defaultValues: {
@@ -75,7 +83,12 @@ export default function ModalExpedientForm({
       observacion: null,
       folios: 1,
       fecha_doc: new Date().toISOString().split("T")[0],
-      documento: {} as File,
+      documento: {
+        uri: "",
+        type: "",
+        name: "",
+        size: 0,
+      },
     },
   });
 
@@ -96,15 +109,30 @@ export default function ModalExpedientForm({
   };
 
   const onSubmit = (data: ExpedientForm) => {
-    if (file === null || file === undefined) {
-      setError("documento", {
-        type: "manual",
-        message: "El documento es requerido",
-      });
-      return;
-    }
-
-    console.log("Form data:", data);
+    setLoading(true);
+    const formData = toFormData({
+      ...data,
+      n_solicitante: user?.id,
+      dniruc: user?.dni,
+      user_reg: "MOBILE_APP",
+    });
+    storeExpedient(formData)
+      .then(({ data }) => {
+        if (data.success) {
+          setSubmitError(null);
+          Toast.show({
+            type: "success",
+            text1: "Éxito",
+            text2: data.message || "Expediente guardado correctamente",
+          });
+          reset();
+          onClose();
+          onSuccess?.(data.data);
+        } else {
+          setSubmitError(data.message || "Error al guardar el expediente");
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -129,6 +157,16 @@ export default function ModalExpedientForm({
             <CardTitle className="text-lg">Nuevo Trámite</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
+            {submitError && (
+              <Alert
+                icon={LucideAlertTriangle}
+                variant="destructive"
+                className="bg-red-100 border-red-300"
+              >
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{submitError}</AlertDescription>
+              </Alert>
+            )}
             <Controller
               control={control}
               name="cod_tipodoc"
@@ -256,32 +294,53 @@ export default function ModalExpedientForm({
               )}
             />
 
-            <View className="field">
-              <View className="flex flex-row gap-2 items-center">
-                <Text
-                  className={cn(
-                    "label-control text-sm",
-                    errors.documento && "text-destructive",
-                  )}
-                >
-                  Documento
-                </Text>
-                <Label className="label-control text-red-500">*</Label>
-              </View>
-              <FilePicker
-                type={["application/pdf"]}
-                onSelected={(files) => {
-                  if (files.length > 0) {
-                    console.log("Selected file:", files[0].uri);
-                  }
-                }}
-              />
-              {errors.documento && (
-                <Text className="text-xs text-destructive">
-                  {errors.documento.message}
-                </Text>
+            <Controller
+              control={control}
+              name="documento"
+              render={({ field }) => (
+                <View className="field">
+                  <View className="flex flex-row gap-2 items-center">
+                    <Text
+                      className={cn(
+                        "label-control text-sm",
+                        (errors.documento?.name?.message ||
+                          errors.documento?.type?.message ||
+                          errors.documento?.uri?.message) &&
+                          "text-destructive",
+                      )}
+                    >
+                      Documento
+                    </Text>
+                    <Label className="label-control text-red-500">*</Label>
+                  </View>
+                  <FilePicker
+                    error={
+                      errors.documento?.name?.message ||
+                      errors.documento?.type?.message ||
+                      errors.documento?.uri?.message
+                    }
+                    onSelected={(files) => {
+                      if (files.length > 0) {
+                        const file = {
+                          uri: files[0].uri,
+                          type: files[0].mimeType || "application/pdf",
+                          name: files[0].name,
+                          size: files[0].size,
+                        };
+                        field.onChange(file);
+                      } else {
+                        field.onChange({
+                          uri: "",
+                          type: "",
+                          name: "",
+                          size: 0,
+                        });
+                      }
+                    }}
+                  />
+                </View>
               )}
-            </View>
+            />
           </CardContent>
           <CardFooter className="flex flex-row justify-between gap-2">
             <Button variant={"secondary"} onPress={onClose}>

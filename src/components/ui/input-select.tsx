@@ -51,6 +51,10 @@ export function InputSelect({
     setItems(data);
   }, [data]);
 
+  useEffect(() => {
+    setProxyValue(value);
+  }, [value]);
+
   const fetchItems = async (term: string = "") => {
     try {
       setLoading(true);

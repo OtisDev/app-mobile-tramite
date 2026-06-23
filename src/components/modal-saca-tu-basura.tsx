@@ -23,6 +23,7 @@ export default function ModalTakeOutYourTrash({
   const [filteredData, setFilteredData] = useState<ScheduleTrash[]>([]);
   const [types, setTypes] = useState<SelectOption[]>([]);
   const [zones, setZones] = useState<SelectOption[]>([]);
+  const [selectedZone, setSelectedZone] = useState<SelectOption | null>(null);
   const fetchTakeOutYourTrashData = () => {
     listTakeOutYourTrash().then((data) => {
       setTakeOutYourTrashData(data);
@@ -41,6 +42,7 @@ export default function ModalTakeOutYourTrash({
   };
 
   const onChangeType = (selectedType: SelectOption) => {
+    setSelectedZone(null);
     setZones([]);
 
     const filtered = takeOutYourTrashData
@@ -50,15 +52,17 @@ export default function ModalTakeOutYourTrash({
     setZones(filteredZones);
   };
 
-  const onChangeZone = (selectedZone: SelectOption) => {
+  const onChangeZone = (zone: SelectOption) => {
+    setSelectedZone(zone);
     const filtered = takeOutYourTrashData.filter(
-      (item) => item.id.toString() === selectedZone.value,
+      (item) => item.id.toString() === zone.value,
     );
     setFilteredData(filtered);
   };
 
   const handleOnClose = () => {
     onClose?.();
+    setSelectedZone(null);
     setFilteredData([]);
     setTypes([]);
     setZones([]);
@@ -93,7 +97,11 @@ export default function ModalTakeOutYourTrash({
             </View>
             <View className="w-full flex flex-col gap-2">
               <Text className="text-sm font-medium">Zona</Text>
-              <InputSelect data={zones} onChange={onChangeZone} />
+              <InputSelect
+                data={zones}
+                onChange={onChangeZone}
+                value={selectedZone}
+              />
             </View>
           </View>
           <FlatList
@@ -102,6 +110,9 @@ export default function ModalTakeOutYourTrash({
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View className="flex flex-col px-5 py-6 border border-green-500 bg-green-100 rounded-xl">
+                <Text className="font-semibold mb-3 text-green-600 uppercase text-center">
+                  Horario de Recolección
+                </Text>
                 <View className="flex flex-row items-center justify-between">
                   <View className="flex flex-col">
                     <Text variant="small" className="text-muted-foreground">

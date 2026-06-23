@@ -1,20 +1,28 @@
+import { cn } from "@/lib/utils";
 import * as DocumentPicker from "expo-document-picker";
-import { useState } from "react";
-import { Pressable } from "react-native";
+import { LucideX } from "lucide-react-native";
+import { Fragment, useState } from "react";
+import { Pressable, View } from "react-native";
 import { Text } from "./text";
 
 export interface FilePickerProps {
   multiple?: boolean;
   placeholder?: string;
-  type?: string | string[];
+  types?: string | string[];
+  error?: string;
+  className?: string;
+  containerClassName?: string;
   onSelected?: (files: DocumentPicker.DocumentPickerAsset[]) => void;
   onSelectedResult?: (file: DocumentPicker.DocumentPickerResult) => void;
 }
 
 export default function FilePicker({
   placeholder = "Seleccione archivo",
-  type,
+  types = ["application/pdf"],
   multiple = false,
+  className,
+  containerClassName,
+  error,
   onSelected,
   onSelectedResult,
 }: FilePickerProps) {
@@ -24,7 +32,7 @@ export default function FilePicker({
       copyToCacheDirectory: true,
       base64: true,
       multiple: multiple,
-      type: type ? (Array.isArray(type) ? type : [type]) : [],
+      type: types ? (Array.isArray(types) ? types : [types]) : [],
     });
 
     if (!result.canceled) {
@@ -37,12 +45,55 @@ export default function FilePicker({
     }
   };
 
+  const onClearFile = () => {
+    setFileName(placeholder);
+    onSelected?.([]);
+    onSelectedResult?.({ canceled: true, assets: [] } as any);
+  };
+
   return (
-    <Pressable
-      onPress={onSelectFile}
-      className="px-4 py-2 border border-border rounded-xl h-10"
-    >
-      <Text>{fileName}</Text>
-    </Pressable>
+    <Fragment>
+      <View
+        className={cn(
+          "flex-row items-center border border-border rounded-lg",
+          error && "border-destructive",
+          containerClassName,
+        )}
+      >
+        <Pressable
+          onPress={onSelectFile}
+          className={cn("px-4 py-2 h-10 w-[92%]", className)}
+          style={({ pressed }) => pressed && { opacity: 0.7 }}
+        >
+          <Text className={cn("truncate", error && "text-destructive")}>
+            {fileName}
+          </Text>
+        </Pressable>
+        {placeholder !== fileName && (
+          <Pressable
+            onPress={onClearFile}
+            className="px-3 py-2 h-10 justify-center items-center rounded-r-lg"
+          >
+            {({ pressed }) => (
+              <LucideX
+                size={20}
+                className={
+                  pressed
+                    ? "text-red-500"
+                    : error
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                }
+                style={{
+                  opacity: pressed ? 0.7 : 1,
+                }}
+              />
+            )}
+          </Pressable>
+        )}
+      </View>
+
+      {error && <Text className="text-xs text-destructive">{error}</Text>}
+    </Fragment>
   );
 }

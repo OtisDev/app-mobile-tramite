@@ -7,6 +7,21 @@ module.exports = {
     "./src/app/**/*.{js,jsx,ts,tsx}",
     "./src/components/**/*.{js,jsx,ts,tsx}",
   ],
+  safelist: [
+    {
+      pattern: /text-(red|green|blue)-(400|500|600)/,
+    },
+    {
+      pattern: /bg-(red|green|blue)-(400|500|600)/,
+    },
+    {
+      pattern: /(w|h)-\[(\d{1,2}|100)%\]/,
+    },
+    {
+      pattern:
+        /(bg|text)-(red|green|blue|yellow|orange|purple|pink|gray)-(50|100|200|300|400|500|600|700|800|900)/,
+    },
+  ],
   presets: [require("nativewind/preset")],
   theme: {
     /*colors: {
