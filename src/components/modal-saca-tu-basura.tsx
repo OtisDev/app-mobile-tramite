@@ -87,6 +87,7 @@ export default function ModalTakeOutYourTrash({
         </CardHeader>
         <CardContent>
           <View className="flex flex-col gap-4">
+            <Text>Consulta el horario de recolección de tu zona</Text>
             <View className="w-full flex flex-col gap-2">
               <Text className="text-sm font-medium">Tipo Zona</Text>
               <InputSelect

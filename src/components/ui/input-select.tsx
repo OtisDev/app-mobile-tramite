@@ -32,7 +32,7 @@ interface InputSelectProps {
 
 export function InputSelect({
   data = [],
-  placeholder = "Seleccione...",
+  placeholder = "Seleccione",
   value,
   onChange,
   loadOptions,
@@ -90,7 +90,12 @@ export function InputSelect({
           error && "border-destructive",
         )}
       >
-        <Text className={cn(error && "text-destructive")}>
+        <Text
+          className={cn(
+            error && "text-destructive",
+            !proxyValue && "text-muted-foreground",
+          )}
+        >
           {proxyValue?.label || placeholder}
         </Text>
       </Pressable>
