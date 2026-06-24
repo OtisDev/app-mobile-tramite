@@ -12,6 +12,7 @@ import ModalExpedientForm from "@/components/modal-expedient-form";
 import ModalPreviewPdf, {
   PdfPreviewProps,
 } from "@/components/modal-preview-pdf";
+import Loading from "@/components/shared/loading";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -93,15 +94,15 @@ export default function TabTwoScreen() {
     switch (action) {
       case "history":
         setPdfPreviewProps({
-          title: "Historial del Expediente",
-          fileName: `historial-${item.ano_eje}-${item.n_expediente}.pdf`,
+          title: "Hoja de Ruta del Expediente",
+          fileName: `HOJA DE RUTA - ${item.document_type?.nom_tipodoc} N° ${item.n_expediente}-${item.ano_eje}.pdf`,
           url: `${process.env.EXPO_PUBLIC_API_URL}/pdf-expedient/history/${item.ano_eje}/${item.n_expediente}`,
         });
         break;
       case "ticket":
         setPdfPreviewProps({
           title: "Ticket del Expediente",
-          fileName: `ticket-${item.ano_eje}-${item.n_expediente}.pdf`,
+          fileName: `TICKET - ${item.document_type?.nom_tipodoc} N° ${item.n_expediente}-${item.ano_eje}.pdf`,
           url: `${process.env.EXPO_PUBLIC_API_URL}/pdf-expedient/ticket/${item.ano_eje}/${item.n_expediente}`,
         });
         break;
@@ -209,24 +210,7 @@ export default function TabTwoScreen() {
             </Alert>
           </View>
           <View className="relative flex-1" style={styles.sectionsWrapper}>
-            {refreshing && (
-              <View className="absolute w-full h-full bg-white/80 z-50 flex-col items-center justify-center py-20">
-                <LottieView
-                  source={require("@/assets/animations/Loading.json")}
-                  autoPlay
-                  loop
-                  style={{
-                    width: 300,
-                    height: 250,
-                    alignSelf: "center",
-                    margin: "auto",
-                  }}
-                />
-                <Text className="text-primary text-center z-50">
-                  Cargando...
-                </Text>
-              </View>
-            )}
+            {refreshing && <Loading animation="Gears" className="right-2" />}
             {expedientes.map((expediente) => (
               <CardExpedient
                 key={expediente.expediente_id.toString()}

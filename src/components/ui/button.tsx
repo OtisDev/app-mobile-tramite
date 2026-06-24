@@ -55,8 +55,8 @@ const buttonVariants = cva(
           Platform.select({ web: "hover:bg-gray-600" }),
         ),
         dark: cn(
-          "bg-gray-800 active:bg-gray-900 shadow-sm shadow-black/5",
-          Platform.select({ web: "hover:bg-gray-900" }),
+          "bg-gray-900 active:bg-gray-800 shadow-sm shadow-black/5",
+          Platform.select({ web: "hover:bg-gray-800" }),
         ),
       },
       size: {

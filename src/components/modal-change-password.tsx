@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import Modal from "react-native-modal";
 import { z } from "zod";
+import Loading from "./shared/loading";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import {
@@ -102,7 +103,15 @@ export default function ModalChangePassword({
         <CardHeader>
           <CardTitle className="text-lg">Cambiar contraseña</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="relative flex flex-col gap-4">
+          {loading && (
+            <Loading
+              message="Actualizando contraseña..."
+              animation="Gears"
+              size={150}
+              className="z-50 mx-6"
+            />
+          )}
           {error && (
             <Alert
               icon={LucideAlertTriangle}

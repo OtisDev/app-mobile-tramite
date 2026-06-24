@@ -33,7 +33,7 @@ export function InputGroup({
   ...props
 }: InputGroupProps) {
   return (
-    <View className={cn("gap-2", containerClassName)}>
+    <View className={cn("gap-2 z-10", containerClassName)}>
       {label && (
         <Text
           className={cn(

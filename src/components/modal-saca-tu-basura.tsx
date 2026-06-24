@@ -84,10 +84,12 @@ export default function ModalTakeOutYourTrash({
       <Card className="rounded-t-2xl rounded-b-none">
         <CardHeader>
           <CardTitle className="text-lg">Saca tu basura</CardTitle>
+          <Text className="text-gray-700 -mt-2">
+            Consulta el horario de recolección de tu zona
+          </Text>
         </CardHeader>
         <CardContent>
           <View className="flex flex-col gap-4">
-            <Text>Consulta el horario de recolección de tu zona</Text>
             <View className="w-full flex flex-col gap-2">
               <Text className="text-sm font-medium">Tipo Zona</Text>
               <InputSelect

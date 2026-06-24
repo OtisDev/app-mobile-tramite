@@ -57,7 +57,7 @@ function AlertTitle({
   return (
     <Text
       className={cn(
-        "mb-1 ml-0.5 min-h-4 pl-6 font-medium leading-none tracking-tight",
+        "mb-1 ml-0.5 min-h-4 pl-6 font-medium leading-none tracking-tight bg-transparent",
         className,
       )}
       {...props}

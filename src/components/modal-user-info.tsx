@@ -9,6 +9,7 @@ import { ScrollView } from "react-native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
 import { z } from "zod";
+import Loading from "./shared/loading";
 import SelectDocumentType from "./shared/select-document-type";
 import { Button } from "./ui/button";
 import {
@@ -128,7 +129,15 @@ export default function ModalUserInfo({
           <CardHeader>
             <CardTitle className="text-lg">Información del Usuario</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="relative flex flex-col gap-4 ">
+            {loading && (
+              <Loading
+                message="Actualizando información..."
+                animation="Gears"
+                size={150}
+                className="z-50 mx-6"
+              />
+            )}
             <Controller
               control={control}
               name="documentType"

@@ -29,7 +29,6 @@ export default function SportsVenuesScreen() {
         .then((setting) => {
           if (setting) {
             setMapUrl(setting.value);
-            console.log("sports_venues_map_url", setting.value);
           } else {
             setMapUrl(null);
           }

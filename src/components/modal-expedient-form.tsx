@@ -12,6 +12,7 @@ import { ScrollView, View } from "react-native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
 import { z } from "zod";
+import Loading from "./shared/loading";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import {
@@ -157,6 +158,14 @@ export default function ModalExpedientForm({
             <CardTitle className="text-lg">Nuevo Trámite</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
+            {loading && (
+              <Loading
+                message="Guardando expediente..."
+                animation="Gears"
+                size={150}
+                className="z-50 mx-6"
+              />
+            )}
             {submitError && (
               <Alert
                 icon={LucideAlertTriangle}
