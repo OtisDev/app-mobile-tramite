@@ -16,6 +16,8 @@ interface InputGroupProps extends TextInputProps {
 
   className?: string;
   containerClassName?: string;
+
+  upperCase?: boolean;
 }
 
 export function InputGroup({
@@ -30,8 +32,14 @@ export function InputGroup({
   containerClassName,
   className,
 
+  onChangeText,
+  upperCase = true,
+
   ...props
 }: InputGroupProps) {
+  const handleChangeText = (text: string) => {
+    onChangeText?.(upperCase ? text.toUpperCase() : text);
+  };
   return (
     <View className={cn("gap-2 z-10", containerClassName)}>
       {label && (
@@ -56,6 +64,7 @@ export function InputGroup({
 
         <Input
           className={cn("flex-1 border-0 bg-transparent px-0", className)}
+          onChangeText={handleChangeText}
           {...props}
         />
 

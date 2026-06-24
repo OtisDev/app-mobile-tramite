@@ -133,6 +133,7 @@ export default function ModalChangePassword({
                 value={field.value}
                 onChangeText={field.onChange}
                 error={errors.currentPassword?.message}
+                upperCase={false}
               />
             )}
           />
@@ -147,6 +148,7 @@ export default function ModalChangePassword({
                 value={field.value}
                 onChangeText={field.onChange}
                 error={errors.newPassword?.message}
+                upperCase={false}
               />
             )}
           />
@@ -161,6 +163,7 @@ export default function ModalChangePassword({
                 value={field.value}
                 onChangeText={field.onChange}
                 error={errors.confirmNewPassword?.message}
+                upperCase={false}
               />
             )}
           />

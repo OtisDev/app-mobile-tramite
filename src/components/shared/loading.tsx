@@ -38,7 +38,7 @@ export default function Loading({
   }, [size]);
 
   return (
-    <View className={cn("absolute w-full h-full bg-white/80 z-50", className)}>
+    <View className={cn("absolute w-full h-full bg-white/90 z-50", className)}>
       <View className="flex flex-col m-auto">
         <LottieView
           source={animations[animation]}

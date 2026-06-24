@@ -227,7 +227,7 @@ export default function ModalExpedientForm({
                     label="Folios"
                     required
                     value={field.value?.toString()}
-                    onChangeText={field.onChange}
+                    onChangeText={(value) => field.onChange(Number(value))}
                     error={errors.folios?.message}
                     containerClassName="w-[48%]"
                     keyboardType="numeric"
@@ -270,7 +270,10 @@ export default function ModalExpedientForm({
                     onChangeText={field.onChange}
                     onBlur={field.onBlur}
                     aria-disabled={field.disabled}
-                    className={cn(errors.asunto && "border-destructive")}
+                    className={cn(
+                      "Z-20",
+                      errors.asunto && "border-destructive",
+                    )}
                   />
                   {errors.asunto && (
                     <Text className="text-xs text-destructive">

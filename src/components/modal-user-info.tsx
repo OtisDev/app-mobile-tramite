@@ -1,4 +1,4 @@
-import { updateUserInfo } from "@/services/auth.service";
+import { updateUser } from "@/services/auth.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,7 +79,7 @@ export default function ModalUserInfo({
 
   const onSubmit = (data: UserForm) => {
     setLoading(true);
-    updateUserInfo({
+    updateUser({
       id: data.id,
       name: data.name,
       username: user?.username || "",

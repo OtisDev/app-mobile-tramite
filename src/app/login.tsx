@@ -160,6 +160,7 @@ export default function LoginScreen() {
             selectClassName="z-40"
             value={tipoDocumento}
             onValueChange={setTipoDocumento}
+            inModal
           />
           <InputGroup
             label={numberLabel}
@@ -187,6 +188,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             }
             value={password}
+            upperCase={false}
             onChangeText={(text) => setPassword(text)}
           />
           <Button
