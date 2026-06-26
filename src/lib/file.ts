@@ -1,7 +1,9 @@
 import { useAuthStore } from '@/stores/auth.store';
 import { File, Paths } from 'expo-file-system';
 
-export const downloadFile = async (url: string, fileName: string) => {
+export type DownloadProgressCallback = (bytesWritten: number, totalBytes: number) => void;
+
+export const downloadFile = async (url: string, fileName: string, onProgress?: DownloadProgressCallback) => {
   const token = useAuthStore.getState().token;
   const dest = new File(Paths.document, fileName);
   const downloadTask = File.createDownloadTask(url, dest, {
@@ -9,7 +11,7 @@ export const downloadFile = async (url: string, fileName: string) => {
       Authorization: `Bearer ${token}`,
     },
     onProgress: ({ bytesWritten, totalBytes }) => {
-      console.log(`Downloaded ${bytesWritten} of ${totalBytes} bytes`);
+      onProgress?.(bytesWritten, totalBytes);
     }
   });
   return await downloadTask.downloadAsync();

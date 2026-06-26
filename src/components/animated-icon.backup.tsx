@@ -1,25 +1,11 @@
 import { Image } from "expo-image";
 import { useState } from "react";
-import { Dimensions, StyleSheet } from "react-native";
-import Animated, {
-  Easing,
-  Keyframe,
-  SharedValue,
-  interpolate,
-  useAnimatedStyle,
-} from "react-native-reanimated";
+import { Dimensions, StyleSheet, View } from "react-native";
+import Animated, { Easing, Keyframe } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 
 const INITIAL_SCALE_FACTOR = Dimensions.get("screen").height / 90;
 const DURATION = 600;
-
-interface AnimatedIconProps {
-  /**
-   * Valor del scroll del Hero.
-   * Si no se envía, el logo mantiene su tamaño normal.
-   */
-  scrollY?: SharedValue<number>;
-}
 
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
@@ -49,7 +35,6 @@ export function AnimatedSplashOverlay() {
     <Animated.View
       entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
         "worklet";
-
         if (finished) {
           scheduleOnRN(setVisible, false);
         }
@@ -95,102 +80,68 @@ const glowKeyframe = new Keyframe({
   },
 });
 
-export function AnimatedIcon({ scrollY }: AnimatedIconProps) {
-  const animatedStyle = useAnimatedStyle(() => {
-    const progress = scrollY ? scrollY.value : 0;
-
-    const size = interpolate(progress, [0, 300], [128, 48], "clamp");
-
-    const glow = interpolate(progress, [0, 300], [201, 76], "clamp");
-
-    const logoWidth = interpolate(progress, [0, 300], [76, 30], "clamp");
-
-    const logoHeight = interpolate(progress, [0, 300], [90, 36], "clamp");
-
-    return {
-      width: size,
-      height: size,
-    };
-  });
-
-  const glowStyle = useAnimatedStyle(() => {
-    const progress = scrollY ? scrollY.value : 0;
-
-    return {
-      width: interpolate(progress, [0, 300], [201, 76], "clamp"),
-      height: interpolate(progress, [0, 300], [201, 76], "clamp"),
-    };
-  });
-
-  const logoStyle = useAnimatedStyle(() => {
-    const progress = scrollY ? scrollY.value : 0;
-
-    return {
-      width: interpolate(progress, [0, 300], [76, 30], "clamp"),
-      height: interpolate(progress, [0, 300], [90, 36], "clamp"),
-    };
-  });
-
+export function AnimatedIcon() {
   return (
-    <Animated.View style={[styles.iconContainer, animatedStyle]}>
+    <View style={styles.iconContainer}>
       <Animated.View
         entering={glowKeyframe.duration(60 * 1000 * 4)}
-        style={[styles.glow, glowStyle]}
+        style={styles.glow}
       >
         <Image
+          style={styles.glow}
           source={require("@/assets/images/logo-glow.png")}
-          style={StyleSheet.absoluteFill}
-          contentFit="contain"
         />
       </Animated.View>
 
       <Animated.View
         entering={keyframe.duration(DURATION)}
-        style={[styles.background, animatedStyle]}
+        style={styles.background}
       />
-
       <Animated.View
-        entering={logoKeyframe.duration(DURATION)}
         style={styles.imageContainer}
+        entering={logoKeyframe.duration(DURATION)}
       >
-        <Animated.Image
+        <Image
+          style={styles.image}
           source={require("@/assets/images/logo-mdnch.png")}
-          style={logoStyle}
-          className={"object-cover"}
         />
       </Animated.View>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 100,
-  },
-
   imageContainer: {
     justifyContent: "center",
     alignItems: "center",
   },
-
   glow: {
+    width: 201,
+    height: 201,
     position: "absolute",
   },
-
+  iconContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 128,
+    height: 128,
+    zIndex: 100,
+  },
+  image: {
+    position: "absolute",
+    width: 76,
+    height: 90,
+  },
   background: {
+    borderRadius: 40,
+    experimental_backgroundImage: `linear-gradient(180deg, #3C9FFE, #0274DF)`,
+    width: 128,
+    height: 128,
     position: "absolute",
-    borderRadius: 999,
-    overflow: "hidden",
-
-    experimental_backgroundImage: "linear-gradient(180deg,#193067,#101828)",
-    backgroundColor: "#193067",
   },
-
   backgroundSolidColor: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "#193067",
+    backgroundColor: "#208AEF",
     zIndex: 1000,
   },
 });

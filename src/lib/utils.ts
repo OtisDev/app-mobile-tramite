@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from 'clsx';
+import { openBrowserAsync, WebBrowserPresentationStyle } from 'expo-web-browser';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -59,4 +60,13 @@ export function appendQueryParams(
   return url.startsWith("http")
     ? urlObj.toString()
     : `${urlObj.pathname}${urlObj.search}`;
+}
+
+export const openBrowserUrl = async (url: string) => {
+  await openBrowserAsync(
+    url,
+    {
+      presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
+    },
+  );
 }

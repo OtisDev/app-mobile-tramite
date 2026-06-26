@@ -1,31 +1,31 @@
-import { AnimatedIcon } from "@/components/animated-icon";
 import ButtonIcon from "@/components/button-icon";
+import HeroCollapsible from "@/components/HeroCollapsible";
 import ModalChangePassword from "@/components/modal-change-password";
 import ModalExpedientForm from "@/components/modal-expedient-form";
 import ModalTakeOutYourTrash from "@/components/modal-saca-tu-basura";
 import ModalUserInfo from "@/components/modal-user-info";
 import { ThemedView } from "@/components/themed-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { CardCollapsible } from "@/components/ui/card-collapsible";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
+import { openBrowserUrl } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "expo-router";
 import {
   LucideAsterisk,
+  LucideBookOpen,
   LucideClock,
   LucideEdit3,
   LucideIcon,
   LucideInfo,
   LucideLogOut,
   LucidePlus,
-  LucideSearch,
 } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { FlatList, useWindowDimensions, View } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useEffect, useMemo, useState } from "react";
+import { useWindowDimensions, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ButtonAction {
   key: string;
@@ -76,19 +76,21 @@ export default function DashboardHomeScreen() {
       },
     },
     {
-      key: "search-tramite",
-      label: "Consultar\ntrámite",
-      icon: LucideSearch,
-      onPress: () => {
-        router.push("/(dashboard)/explore");
-      },
-    },
-    {
       key: "take-out-your-trash",
       label: "Saca tu\nbasura",
       icon: LucideClock,
       onPress: () => {
         setShowTakeOutYourTrashModal(true);
+      },
+    },
+    {
+      key: "complaint-book",
+      label: "LIBRO DE RECLAMACIONES",
+      icon: LucideBookOpen,
+      onPress: () => {
+        openBrowserUrl(
+          `https://reclamos.servicios.gob.pe/?institution_id=1311`,
+        );
       },
     },
     {
@@ -102,6 +104,16 @@ export default function DashboardHomeScreen() {
     },
   ];
 
+  const groupedActions = useMemo(() => {
+    const _groupedActions = [];
+
+    for (let i = 0; i < actions.length; i += 3) {
+      _groupedActions.push(actions.slice(i, i + 3));
+    }
+
+    return _groupedActions;
+  }, [actions]);
+
   useEffect(() => {
     if (!signedIn) {
       logout();
@@ -111,31 +123,9 @@ export default function DashboardHomeScreen() {
 
   return (
     <ThemedView className="flex-1 flex items-center">
-      <SafeAreaView
-        edges={["top"]}
-        style={{
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }}
-      >
-        <View className="gap-4 items-center justify-center my-6">
-          <AnimatedIcon />
-          <View className="flex items-center gap-1 my-4">
-            <Text variant={"h3"} className="uppercase">
-              Municipalidad Distrital
-            </Text>
-            <Text variant={"small"} className="uppercase">
-              de
-            </Text>
-            <Text variant={"h1"} className="text-primary uppercase">
-              Nuevo Chimbote
-            </Text>
-          </View>
-        </View>
-        <View className="w-full px-6">
-          <Alert icon={LucideInfo} className="mb-4">
+      <HeroCollapsible>
+        <View className="w-full">
+          <Alert icon={LucideInfo}>
             <AlertTitle>Bienvenido</AlertTitle>
             <AlertDescription className="text-justify break-all">
               {user?.name}, bienvenido a la aplicación de la Municipalidad
@@ -143,26 +133,78 @@ export default function DashboardHomeScreen() {
             </AlertDescription>
           </Alert>
         </View>
-        <View className="flex-1 w-full mt-6">
-          <FlatList
-            data={actions}
-            numColumns={3}
-            keyExtractor={(item) => item.key}
-            renderItem={({ item }) => (
-              <ButtonIcon
-                onPress={item.onPress}
-                label={item.label}
-                style={{
-                  width: (width - Spacing.four * 2 - Spacing.four * 2) / 3,
-                }}
-                icon={item.icon}
-              ></ButtonIcon>
-            )}
-            columnWrapperClassName="gap-6 px-6"
-            contentContainerClassName="gap-6"
-          />
+        <View className="w-full gap-6">
+          {groupedActions.map((row, rowIndex) => (
+            <View key={rowIndex} className="flex-row justify-between gap-4">
+              {row.map((item) => (
+                <ButtonIcon
+                  key={item.key}
+                  onPress={item.onPress}
+                  label={item.label}
+                  icon={item.icon}
+                  style={{
+                    width: (width - 48 - 32) / 3,
+                  }}
+                />
+              ))}
+
+              {/* Completa la fila si tiene menos de 3 elementos */}
+              {Array.from({ length: 3 - row.length }).map((_, index) => (
+                <View
+                  key={`empty-${index}`}
+                  style={{
+                    width: (width - 48 - 32) / 3,
+                  }}
+                />
+              ))}
+            </View>
+          ))}
         </View>
-      </SafeAreaView>
+        <CardCollapsible title="Turismo" description="Conoce Nuevo Chimbote">
+          <Text>
+            Conoce los rincones más bonitos de Nuevo Chimbote que no puedes
+            perderte cuando vengas de visita.
+          </Text>
+          <View className="flex-row justify-end mt-2">
+            <Button
+              variant={"outline"}
+              className="rounded-full"
+              onPress={() =>
+                openBrowserUrl(
+                  `https://www.muninuevochimbote.gob.pe/tudistrito/turismo`,
+                )
+              }
+            >
+              <Text>Ver más</Text>
+            </Button>
+          </View>
+        </CardCollapsible>
+
+        <CardCollapsible
+          title="Biblioteca Municipal"
+          description="Conoce nuestra hermosa y moderna biblioteca municipal."
+        >
+          <Text>
+            La Biblioteca Municipal de Nuevo Chimbote es un espacio dedicado a
+            la promoción de la lectura y el acceso a la información. Contamos
+            con una amplia colección de libros, revistas y recursos digitales
+            para toda la comunidad.
+          </Text>
+          <View className="flex-row justify-end mt-2">
+            <Button
+              variant={"outline"}
+              className="rounded-full"
+              onPress={() =>
+                openBrowserUrl(
+                  `https://www.muninuevochimbote.gob.pe/servicios/biblioteca`,
+                )
+              }
+            >
+              <Text>Ver más</Text>
+            </Button>
+          </View>
+        </CardCollapsible>
+      </HeroCollapsible>
 
       <ModalExpedientForm
         isVisible={showExpedientForm}

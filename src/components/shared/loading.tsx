@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { AnimationName, animations } from "@/types";
 import LottieView from "lottie-react-native";
 import React, { useMemo } from "react";
-import { View } from "react-native";
+import { StyleProp, View, ViewStyle } from "react-native";
 import { Text } from "../ui/text";
 
 export interface LoadingProps {
@@ -19,6 +19,7 @@ export interface LoadingProps {
     React.ComponentProps<typeof LottieView>["style"],
     "width" | "height"
   >;
+  style?: StyleProp<ViewStyle>;
   messageClassName?: string;
 }
 
@@ -28,6 +29,7 @@ export default function Loading({
   size = 300,
   className,
   animationStyle,
+  style,
   messageClassName,
 }: LoadingProps) {
   const animationSize = useMemo(() => {
@@ -38,7 +40,10 @@ export default function Loading({
   }, [size]);
 
   return (
-    <View className={cn("absolute w-full h-full bg-white/90 z-50", className)}>
+    <View
+      className={cn("absolute w-full h-full bg-white/90 z-50", className)}
+      style={style}
+    >
       <View className="flex flex-col m-auto">
         <LottieView
           source={animations[animation]}
