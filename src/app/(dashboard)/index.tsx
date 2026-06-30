@@ -1,9 +1,7 @@
 import ButtonIcon from "@/components/button-icon";
 import HeroCollapsible from "@/components/HeroCollapsible";
-import ModalChangePassword from "@/components/modal-change-password";
 import ModalExpedientForm from "@/components/modal-expedient-form";
 import ModalTakeOutYourTrash from "@/components/modal-saca-tu-basura";
-import ModalUserInfo from "@/components/modal-user-info";
 import { ThemedView } from "@/components/themed-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -12,19 +10,17 @@ import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { openBrowserUrl } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth.store";
+import { ExternalLink } from "@/types";
 import { useRouter } from "expo-router";
 import {
-  LucideAsterisk,
   LucideBookOpen,
   LucideClock,
-  LucideEdit3,
   LucideIcon,
   LucideInfo,
-  LucideLogOut,
   LucidePlus,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { useWindowDimensions, View } from "react-native";
+import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ButtonAction {
@@ -33,6 +29,41 @@ interface ButtonAction {
   icon?: LucideIcon;
   onPress: () => void;
 }
+
+const externalLinks: ExternalLink[] = [
+  {
+    key: "turismo",
+    title: "Turismo",
+    description: "Conoce Nuevo Chimbote",
+    content:
+      "Conoce los rincones más bonitos de Nuevo Chimbote que no puedes perderte cuando vengas de visita.",
+    url: "https://www.muninuevochimbote.gob.pe/tudistrito/turismo",
+  },
+  {
+    key: "biblioteca-municipal",
+    title: "Biblioteca Municipal",
+    description: "Conoce nuestra hermosa y moderna biblioteca municipal.",
+    content:
+      "La Biblioteca Municipal de Nuevo Chimbote es un espacio dedicado a la promoción de la lectura y el acceso a la información. Contamos con una amplia colección de libros, revistas y recursos digitales para toda la comunidad.",
+    url: "https://www.muninuevochimbote.gob.pe/servicios/biblioteca",
+  },
+  {
+    key: "tupa",
+    title: "TUPA",
+    description: "Conoce nuestro TUPA",
+    content:
+      "El TUPA (Texto Único de Procedimientos Administrativos) es un documento que contiene información sobre los procedimientos administrativos que se realizan en la Municipalidad Distrital de Nuevo Chimbote.",
+    url: "https://tupa.muninuevochimbote.gob.pe/",
+  },
+  {
+    key: "cas",
+    title: "Convocatorias CAS",
+    description: "Conoce nuestras convocatorias",
+    content:
+      "Aquí encontrarás todas las convocatorias disponibles de la Municipalidad Distrital de Nuevo Chimbote.",
+    url: "https://www.muninuevochimbote.gob.pe/tramites/convocatorias",
+  },
+];
 
 export default function DashboardHomeScreen() {
   const safeAreaInsets = useSafeAreaInsets();
@@ -43,30 +74,11 @@ export default function DashboardHomeScreen() {
   const router = useRouter();
   const { user, logout, signedIn } = useAuthStore();
   const { width } = useWindowDimensions();
-  const [showUserInfoModal, setShowUserInfoModal] = useState<boolean>(false);
-  const [showChangePasswordModal, setShowChangePasswordModal] =
-    useState<boolean>(false);
   const [showExpedientForm, setShowExpedientForm] = useState<boolean>(false);
   const [showTakeOutYourTrashModal, setShowTakeOutYourTrashModal] =
     useState<boolean>(false);
 
   const actions: ButtonAction[] = [
-    {
-      key: "update-info",
-      label: "Actualizar información",
-      icon: LucideEdit3,
-      onPress: () => {
-        setShowUserInfoModal(true);
-      },
-    },
-    {
-      key: "change-password",
-      label: "Cambiar contraseña",
-      icon: LucideAsterisk,
-      onPress: () => {
-        setShowChangePasswordModal(true);
-      },
-    },
     {
       key: "new-tramite",
       label: "Nuevo\ntrámite",
@@ -85,21 +97,12 @@ export default function DashboardHomeScreen() {
     },
     {
       key: "complaint-book",
-      label: "LIBRO DE RECLAMACIONES",
+      label: "Libro de\nreclamaciones",
       icon: LucideBookOpen,
       onPress: () => {
         openBrowserUrl(
           `https://reclamos.servicios.gob.pe/?institution_id=1311`,
         );
-      },
-    },
-    {
-      key: "logout",
-      label: "Cerrar\nsesión",
-      icon: LucideLogOut,
-      onPress: () => {
-        logout();
-        router.replace("/login");
       },
     },
   ];
@@ -126,7 +129,7 @@ export default function DashboardHomeScreen() {
       <HeroCollapsible>
         <View className="w-full">
           <Alert icon={LucideInfo}>
-            <AlertTitle>Bienvenido</AlertTitle>
+            <AlertTitle className="text-base -mt-1">Bienvenido</AlertTitle>
             <AlertDescription className="text-justify break-all">
               {user?.name}, bienvenido a la aplicación de la Municipalidad
               Distrital de Nuevo Chimbote.
@@ -134,6 +137,11 @@ export default function DashboardHomeScreen() {
           </Alert>
         </View>
         <View className="w-full gap-6">
+          <View>
+            <TouchableOpacity className="mx-auto p-2 rounded-full h-24 w-24 bg-primary shadow-sm shadow-black/5 flex items-center justify-center">
+              <Text className="text-2xl font-bold text-white">SOS</Text>
+            </TouchableOpacity>
+          </View>
           {groupedActions.map((row, rowIndex) => (
             <View key={rowIndex} className="flex-row justify-between gap-4">
               {row.map((item) => (
@@ -160,65 +168,31 @@ export default function DashboardHomeScreen() {
             </View>
           ))}
         </View>
-        <CardCollapsible title="Turismo" description="Conoce Nuevo Chimbote">
-          <Text>
-            Conoce los rincones más bonitos de Nuevo Chimbote que no puedes
-            perderte cuando vengas de visita.
-          </Text>
-          <View className="flex-row justify-end mt-2">
-            <Button
-              variant={"outline"}
-              className="rounded-full"
-              onPress={() =>
-                openBrowserUrl(
-                  `https://www.muninuevochimbote.gob.pe/tudistrito/turismo`,
-                )
-              }
-            >
-              <Text>Ver más</Text>
-            </Button>
-          </View>
-        </CardCollapsible>
 
-        <CardCollapsible
-          title="Biblioteca Municipal"
-          description="Conoce nuestra hermosa y moderna biblioteca municipal."
-        >
-          <Text>
-            La Biblioteca Municipal de Nuevo Chimbote es un espacio dedicado a
-            la promoción de la lectura y el acceso a la información. Contamos
-            con una amplia colección de libros, revistas y recursos digitales
-            para toda la comunidad.
-          </Text>
-          <View className="flex-row justify-end mt-2">
-            <Button
-              variant={"outline"}
-              className="rounded-full"
-              onPress={() =>
-                openBrowserUrl(
-                  `https://www.muninuevochimbote.gob.pe/servicios/biblioteca`,
-                )
-              }
-            >
-              <Text>Ver más</Text>
-            </Button>
-          </View>
-        </CardCollapsible>
+        {externalLinks.map((link) => (
+          <CardCollapsible
+            title={link.title}
+            description={link.description}
+            key={link.key}
+            defaultExpanded={false}
+          >
+            <Text className="text-justify">{link.content}</Text>
+            <View className="flex-row justify-end mt-2">
+              <Button
+                variant={"outline"}
+                className="rounded-full"
+                onPress={() => openBrowserUrl(link.url)}
+              >
+                <Text>Ver más</Text>
+              </Button>
+            </View>
+          </CardCollapsible>
+        ))}
       </HeroCollapsible>
 
       <ModalExpedientForm
         isVisible={showExpedientForm}
         onClose={() => setShowExpedientForm(false)}
-      />
-
-      <ModalUserInfo
-        isVisible={showUserInfoModal}
-        onClose={() => setShowUserInfoModal(false)}
-      />
-
-      <ModalChangePassword
-        isVisible={showChangePasswordModal}
-        onClose={() => setShowChangePasswordModal(false)}
       />
 
       <ModalTakeOutYourTrash

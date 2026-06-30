@@ -13,10 +13,10 @@ export default function AppTabs() {
       indicatorColor={colors.backgroundElement}
       labelStyle={{ selected: { color: colors.text } }}
     >
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Inicio</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="account">
+        <NativeTabs.Trigger.Label>Mi Cuenta</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require("@/assets/images/tabIcons/home.png")}
+          src={require("@/assets/images/tabIcons/circle-user.png")}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
@@ -25,6 +25,22 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Mis Trámites</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require("@/assets/images/tabIcons/explore.png")}
+          renderingMode="template"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Label>Inicio</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={require("@/assets/images/tabIcons/home.png")}
+          renderingMode="template"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="emergency-numbers">
+        <NativeTabs.Trigger.Label>Emergencias</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={require("@/assets/images/tabIcons/phone-call.png")}
           renderingMode="template"
         />
       </NativeTabs.Trigger>

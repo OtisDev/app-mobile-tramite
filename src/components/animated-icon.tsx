@@ -184,13 +184,13 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     overflow: "hidden",
 
-    experimental_backgroundImage: "linear-gradient(180deg,#193067,#101828)",
-    backgroundColor: "#193067",
+    experimental_backgroundImage: "linear-gradient(180deg,#FFFFFF, #B8C4D7)",
+    backgroundColor: "#FFFFFF",
   },
 
   backgroundSolidColor: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "#193067",
+    backgroundColor: "#FFFFFF",
     zIndex: 1000,
   },
 });

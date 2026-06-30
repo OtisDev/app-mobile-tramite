@@ -26,7 +26,7 @@ export default function CardExpedient({ item, onPress }: CardExpedientProps) {
   };
 
   return (
-    <Pressable className="p-6 border border-gray-200 rounded-lg flex flex-col gap-2">
+    <Pressable className="p-6 border border-gray-200 rounded-lg flex flex-col gap-2 bg-white mx-6">
       <View className="flex flex-row items-center justify-between">
         <View>
           <Text variant={"small"}>N° Exp.</Text>

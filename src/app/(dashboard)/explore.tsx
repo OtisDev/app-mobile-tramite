@@ -1,21 +1,22 @@
 import {
+  Dimensions,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import CardExpedient from "@/components/card-expedient";
+import KeyboardAvoidingWrapper from "@/components/keyboard-avoiding-wrapper";
 import ModalExpedientForm from "@/components/modal-expedient-form";
 import ModalPreviewPdf, {
   PdfPreviewProps,
 } from "@/components/modal-preview-pdf";
 import Loading from "@/components/shared/loading";
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { InputGroup } from "@/components/ui/input-group";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
@@ -28,6 +29,8 @@ import LottieView from "lottie-react-native";
 import { LucideInfo, LucideSearch, LucideX } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { RefreshControl } from "react-native";
+
+const { height } = Dimensions.get("window");
 
 export default function TabTwoScreen() {
   const safeAreaInsets = useSafeAreaInsets();
@@ -129,78 +132,75 @@ export default function TabTwoScreen() {
 
   return (
     <>
-      <ScrollView
-        style={[styles.scrollView, { backgroundColor: theme.background }]}
-        contentInset={insets}
-        contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}
+      <KeyboardAvoidingWrapper
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={fetchExpedientes}
           />
         }
+        contentClassName="gap-4"
       >
-        <ThemedView style={styles.container}>
-          <ThemedView style={styles.titleContainer}>
+        <View style={styles.container}>
+          <View style={styles.titleContainer} className="bg-white">
             <ThemedText type="subtitle">Mis Trámites</ThemedText>
             <ThemedText style={styles.centerText} themeColor="textSecondary">
               Listado de mis trámites registrados. Puedes crear un nuevo{"\n"}
               trámite o consultar el estado de tus trámites anteriores.
             </ThemedText>
 
-            <Pressable
+            <Button
               onPress={handleOpenExpedientForm}
               style={({ pressed }) => pressed && styles.pressed}
+              className="rounded-full"
             >
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Nuevo Trámite</ThemedText>
-              </ThemedView>
-            </Pressable>
-          </ThemedView>
-          <ThemedView className="px-6 mb-6 flex flex-row items-center gap-4">
-            <View className="w-32" style={{ minWidth: 100 }}>
-              <InputGroup
-                value={anio}
-                onChangeText={setAnio}
-                label="Año"
-                keyboardType="number-pad"
-              />
-            </View>
-            <View className="w-52" style={{ minWidth: 200 }}>
-              <InputGroup
-                label="N° Expediente"
-                value={nExpediente}
-                onChangeText={setNExpediente}
-                placeholder="N° de Expediente"
-                keyboardType="number-pad"
-                suffix={
-                  <View className="flex flex-row items-center gap-2">
-                    {nExpediente.length > 0 && (
+              <Text>Nuevo Trámite</Text>
+            </Button>
+          </View>
+          <View className="bg-white flex flex-col gap-4 p-6 border-b border-border mb-4">
+            <View className="flex flex-row items-center gap-4">
+              <View className="w-32" style={{ minWidth: 100 }}>
+                <InputGroup
+                  value={anio}
+                  onChangeText={setAnio}
+                  label="Año"
+                  keyboardType="number-pad"
+                />
+              </View>
+              <View className="w-52" style={{ minWidth: 200 }}>
+                <InputGroup
+                  label="N° Expediente"
+                  value={nExpediente}
+                  onChangeText={setNExpediente}
+                  placeholder="N° de Expediente"
+                  keyboardType="number-pad"
+                  suffix={
+                    <View className="flex flex-row items-center gap-2">
+                      {nExpediente.length > 0 && (
+                        <Pressable
+                          onPress={() => setNExpediente("")}
+                          style={({ pressed }) => pressed && styles.pressed}
+                          className="py-1 pl-1"
+                        >
+                          <LucideX
+                            size={20}
+                            className="text-gray-600"
+                            style={{ opacity: 0.8 }}
+                          />
+                        </Pressable>
+                      )}
                       <Pressable
-                        onPress={() => setNExpediente("")}
+                        onPress={() => fetchExpedientes()}
                         style={({ pressed }) => pressed && styles.pressed}
-                        className="py-1 pl-1"
+                        className="py-1 pl-2 border-l border-border h-10 items-center justify-center"
                       >
-                        <LucideX
-                          size={20}
-                          className="text-gray-600"
-                          style={{ opacity: 0.8 }}
-                        />
+                        <LucideSearch size={20} />
                       </Pressable>
-                    )}
-                    <Pressable
-                      onPress={() => fetchExpedientes()}
-                      style={({ pressed }) => pressed && styles.pressed}
-                      className="py-1 pl-2 border-l border-border h-10 items-center justify-center"
-                    >
-                      <LucideSearch size={20} />
-                    </Pressable>
-                  </View>
-                }
-              />
+                    </View>
+                  }
+                />
+              </View>
             </View>
-          </ThemedView>
-          <View className="px-6 mb-4">
             <Alert icon={LucideInfo}>
               <AlertTitle>Importante</AlertTitle>
               <AlertDescription>
@@ -210,14 +210,17 @@ export default function TabTwoScreen() {
             </Alert>
           </View>
           <View className="relative flex-1" style={styles.sectionsWrapper}>
-            {refreshing && <Loading animation="Gears" className="right-2" />}
-            {expedientes.map((expediente) => (
-              <CardExpedient
-                key={expediente.expediente_id.toString()}
-                item={expediente}
-                onPress={handleOnPress}
-              />
-            ))}
+            {refreshing && (
+              <Loading animation="Gears" className="right-0" overlay={false} />
+            )}
+            {!refreshing &&
+              expedientes.map((expediente) => (
+                <CardExpedient
+                  key={expediente.expediente_id.toString()}
+                  item={expediente}
+                  onPress={handleOnPress}
+                />
+              ))}
             {expedientes.length === 0 && !refreshing && (
               <View className="flex-1 flex flex-col items-center justify-center py-20">
                 <LottieView
@@ -238,8 +241,8 @@ export default function TabTwoScreen() {
               </View>
             )}
           </View>
-        </ThemedView>
-      </ScrollView>
+        </View>
+      </KeyboardAvoidingWrapper>
 
       <ModalExpedientForm
         isVisible={showModalExedientForm}
@@ -276,7 +279,8 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     alignItems: "center",
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
+    paddingTop: Spacing.six,
+    paddingBottom: Spacing.three,
   },
   centerText: {
     textAlign: "center",
@@ -292,10 +296,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: Spacing.one,
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.02)",
   },
   sectionsWrapper: {
     gap: Spacing.four,
-    paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
+    minHeight: height / 2,
   },
 });

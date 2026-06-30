@@ -21,6 +21,7 @@ export interface LoadingProps {
   >;
   style?: StyleProp<ViewStyle>;
   messageClassName?: string;
+  overlay?: boolean;
 }
 
 export default function Loading({
@@ -31,6 +32,7 @@ export default function Loading({
   animationStyle,
   style,
   messageClassName,
+  overlay = true,
 }: LoadingProps) {
   const animationSize = useMemo(() => {
     if (typeof size === "number") {
@@ -41,7 +43,11 @@ export default function Loading({
 
   return (
     <View
-      className={cn("absolute w-full h-full bg-white/90 z-50", className)}
+      className={cn(
+        "absolute w-full h-ful z-50",
+        overlay && "bg-white/90",
+        className,
+      )}
       style={style}
     >
       <View className="flex flex-col m-auto">

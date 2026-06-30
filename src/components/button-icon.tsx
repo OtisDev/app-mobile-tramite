@@ -28,7 +28,7 @@ export default function ButtonIcon({
   children,
   style,
   icon: Icon,
-  iconColor = "#193067",
+  iconColor = "#ffffff", //"#193067",
   iconSize = 32,
 }: ButtonIconProps) {
   const handleOnPress = (evt: GestureResponderEvent) => onPress?.(evt);
@@ -38,7 +38,7 @@ export default function ButtonIcon({
       onPress={handleOnPress}
       style={style}
       className={cn(
-        "flex flex-col gap-2 items-center border border-primary p-4 rounded-lg cursor-pointer",
+        "flex flex-col gap-2 items-center shadow bg-primary p-4 rounded-lg cursor-pointer",
         className,
       )}
     >
@@ -49,7 +49,7 @@ export default function ButtonIcon({
       )}
       <Text
         className={cn(
-          "text-center text-primary uppercase text-sm",
+          "text-center text-white uppercase text-sm",
           labelClassName,
         )}
         numberOfLines={2}
