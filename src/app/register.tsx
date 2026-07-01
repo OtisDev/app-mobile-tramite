@@ -275,7 +275,7 @@ export default function RegisterScreen() {
   return (
     <>
       <ActionBar goBack={true} title="Registro" />
-      <KeyboardAvoidingWrapper>
+      <KeyboardAvoidingWrapper contentClassName="p-6">
         <Card className="max-full self-center">
           <CardHeader>
             <CardTitle>Información Personal</CardTitle>

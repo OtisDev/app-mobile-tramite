@@ -2,25 +2,30 @@ import ButtonIcon from "@/components/button-icon";
 import HeroCollapsible from "@/components/HeroCollapsible";
 import ModalExpedientForm from "@/components/modal-expedient-form";
 import ModalTakeOutYourTrash from "@/components/modal-saca-tu-basura";
+import StartupDialog from "@/components/startup-dialog";
 import { ThemedView } from "@/components/themed-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CardCollapsible } from "@/components/ui/card-collapsible";
+import CirclePulseButton from "@/components/ui/circle-pulse-button";
 import { Text } from "@/components/ui/text";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { openBrowserUrl } from "@/lib/utils";
+import { appSettings } from "@/services/config.service";
+import { useAppStore } from "@/stores/app.store";
 import { useAuthStore } from "@/stores/auth.store";
-import { ExternalLink } from "@/types";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import {
-  LucideBookOpen,
+  LucideBookTemplate,
   LucideClock,
   LucideIcon,
   LucideInfo,
   LucidePlus,
+  LucideSiren,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { RefreshControl, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ButtonAction {
@@ -30,41 +35,6 @@ interface ButtonAction {
   onPress: () => void;
 }
 
-const externalLinks: ExternalLink[] = [
-  {
-    key: "turismo",
-    title: "Turismo",
-    description: "Conoce Nuevo Chimbote",
-    content:
-      "Conoce los rincones más bonitos de Nuevo Chimbote que no puedes perderte cuando vengas de visita.",
-    url: "https://www.muninuevochimbote.gob.pe/tudistrito/turismo",
-  },
-  {
-    key: "biblioteca-municipal",
-    title: "Biblioteca Municipal",
-    description: "Conoce nuestra hermosa y moderna biblioteca municipal.",
-    content:
-      "La Biblioteca Municipal de Nuevo Chimbote es un espacio dedicado a la promoción de la lectura y el acceso a la información. Contamos con una amplia colección de libros, revistas y recursos digitales para toda la comunidad.",
-    url: "https://www.muninuevochimbote.gob.pe/servicios/biblioteca",
-  },
-  {
-    key: "tupa",
-    title: "TUPA",
-    description: "Conoce nuestro TUPA",
-    content:
-      "El TUPA (Texto Único de Procedimientos Administrativos) es un documento que contiene información sobre los procedimientos administrativos que se realizan en la Municipalidad Distrital de Nuevo Chimbote.",
-    url: "https://tupa.muninuevochimbote.gob.pe/",
-  },
-  {
-    key: "cas",
-    title: "Convocatorias CAS",
-    description: "Conoce nuestras convocatorias",
-    content:
-      "Aquí encontrarás todas las convocatorias disponibles de la Municipalidad Distrital de Nuevo Chimbote.",
-    url: "https://www.muninuevochimbote.gob.pe/tramites/convocatorias",
-  },
-];
-
 export default function DashboardHomeScreen() {
   const safeAreaInsets = useSafeAreaInsets();
   const insets = {
@@ -73,6 +43,8 @@ export default function DashboardHomeScreen() {
   };
   const router = useRouter();
   const { user, logout, signedIn } = useAuthStore();
+  const { settings, setSettings } = useAppStore();
+  const [loading, setLoading] = useState<boolean>(false);
   const { width } = useWindowDimensions();
   const [showExpedientForm, setShowExpedientForm] = useState<boolean>(false);
   const [showTakeOutYourTrashModal, setShowTakeOutYourTrashModal] =
@@ -83,27 +55,19 @@ export default function DashboardHomeScreen() {
       key: "new-tramite",
       label: "Nuevo\ntrámite",
       icon: LucidePlus,
-      onPress: () => {
-        setShowExpedientForm(true);
-      },
+      onPress: () => setShowExpedientForm(true),
     },
     {
       key: "take-out-your-trash",
       label: "Saca tu\nbasura",
       icon: LucideClock,
-      onPress: () => {
-        setShowTakeOutYourTrashModal(true);
-      },
+      onPress: () => setShowTakeOutYourTrashModal(true),
     },
     {
       key: "complaint-book",
-      label: "Libro de\nreclamaciones",
-      icon: LucideBookOpen,
-      onPress: () => {
-        openBrowserUrl(
-          `https://reclamos.servicios.gob.pe/?institution_id=1311`,
-        );
-      },
+      label: "Reportar incidencia",
+      icon: LucideBookTemplate,
+      onPress: () => {},
     },
   ];
 
@@ -117,6 +81,25 @@ export default function DashboardHomeScreen() {
     return _groupedActions;
   }, [actions]);
 
+  const onLoadSettings = () => {
+    setLoading(true);
+    appSettings()
+      .then((s) => {
+        setSettings(s);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const onSendAlert = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status === "granted") {
+      const location = await Location.getCurrentPositionAsync();
+
+      console.log(location.coords);
+    }
+  };
+
   useEffect(() => {
     if (!signedIn) {
       logout();
@@ -124,9 +107,21 @@ export default function DashboardHomeScreen() {
     }
   }, [signedIn]);
 
+  useEffect(() => {
+    onLoadSettings();
+  }, []);
+
   return (
     <ThemedView className="flex-1 flex items-center">
-      <HeroCollapsible>
+      <HeroCollapsible
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={onLoadSettings}
+            style={{ zIndex: 8888 }}
+          />
+        }
+      >
         <View className="w-full">
           <Alert icon={LucideInfo}>
             <AlertTitle className="text-base -mt-1">Bienvenido</AlertTitle>
@@ -136,12 +131,19 @@ export default function DashboardHomeScreen() {
             </AlertDescription>
           </Alert>
         </View>
-        <View className="w-full gap-6">
-          <View>
-            <TouchableOpacity className="mx-auto p-2 rounded-full h-24 w-24 bg-primary shadow-sm shadow-black/5 flex items-center justify-center">
-              <Text className="text-2xl font-bold text-white">SOS</Text>
-            </TouchableOpacity>
-          </View>
+        <View className="w-full gap-2">
+          <CirclePulseButton
+            width={(width - 48 - 32) / 3}
+            height={112}
+            style={{ alignSelf: "center" }}
+            className="gap-2"
+            onPress={onSendAlert}
+            borderRadius={12}
+          >
+            <LucideSiren size={36} color="white" />
+            <Text className="text-3xl font-extrabold text-white">SOS</Text>
+          </CirclePulseButton>
+
           {groupedActions.map((row, rowIndex) => (
             <View key={rowIndex} className="flex-row justify-between gap-4">
               {row.map((item) => (
@@ -169,7 +171,11 @@ export default function DashboardHomeScreen() {
           ))}
         </View>
 
-        {externalLinks.map((link) => (
+        <Text className="text-xl font-bold text-gray-800 mt-4">
+          Enlaces Externos
+        </Text>
+
+        {(settings.external_links || []).map((link) => (
           <CardCollapsible
             title={link.title}
             description={link.description}
@@ -198,6 +204,13 @@ export default function DashboardHomeScreen() {
       <ModalTakeOutYourTrash
         isVisible={showTakeOutYourTrashModal}
         onClose={() => setShowTakeOutYourTrashModal(false)}
+      />
+
+      <StartupDialog
+        defaultVisible={settings.startup_dialog.enabled}
+        title={settings.startup_dialog.title}
+        message={settings.startup_dialog.message}
+        url={settings.startup_dialog.url}
       />
     </ThemedView>
   );

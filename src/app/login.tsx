@@ -122,7 +122,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingWrapper>
+    <KeyboardAvoidingWrapper contentClassName="p-6">
       <Card className="w-full self-center my-auto">
         <CardContent className="flex flex-col items-center relative w-full">
           {loading && (

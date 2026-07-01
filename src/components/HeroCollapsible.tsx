@@ -1,12 +1,19 @@
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { ReactNode, useRef } from "react";
-import { Animated, StatusBar, StyleSheet, View } from "react-native";
+import {
+  Animated,
+  RefreshControlProps,
+  StatusBar,
+  StyleSheet,
+  View
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedIcon } from "./animated-icon";
 import { Text } from "./ui/text";
 
 interface HeroCollapsibleProps {
   children?: ReactNode;
+  refreshControl?: React.ReactElement<RefreshControlProps> | undefined;
 }
 
 interface HeroHeaderProps {
@@ -128,7 +135,10 @@ export function DefaultHeroCollapsibleHeader({ scrollY }: HeroHeaderProps) {
   );
 }
 
-export default function HeroCollapsible({ children }: HeroCollapsibleProps) {
+export default function HeroCollapsible({
+  children,
+  refreshControl,
+}: HeroCollapsibleProps) {
   const safeAreaInsets = useSafeAreaInsets();
   const insets = {
     ...safeAreaInsets,
@@ -181,6 +191,7 @@ export default function HeroCollapsible({ children }: HeroCollapsibleProps) {
             useNativeDriver: false,
           },
         )}
+        refreshControl={refreshControl}
       >
         {children}
       </Animated.ScrollView>

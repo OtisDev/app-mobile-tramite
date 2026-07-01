@@ -1,5 +1,6 @@
 import { api } from "@/lib/http";
-import { Response, Setting } from "@/types";
+import { useAppStore } from "@/stores/app.store";
+import { AppConfig, Response, Setting } from "@/types";
 
 interface TableFilter {
     group?: string;
@@ -34,6 +35,17 @@ export function findSetting(name: string): Promise<Setting | null>
             return mapToSetting(response.data.data);
         } else {
             return null;
+        }
+    });
+}
+
+export function appSettings(): Promise<AppConfig>
+{
+    return api.post<Response<AppConfig>>('/app-mobile/settings').then((response) => {
+        if(response.data.success && response.data.data) {
+            return response.data.data;
+        } else {
+            return useAppStore.getState().settings;
         }
     });
 }

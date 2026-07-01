@@ -35,10 +35,11 @@ export default function ButtonIcon({
 
   return (
     <TouchableOpacity
+      activeOpacity={0.6}
       onPress={handleOnPress}
       style={style}
       className={cn(
-        "flex flex-col gap-2 items-center shadow bg-primary p-4 rounded-lg cursor-pointer",
+        "flex flex-col gap-2 items-center bg-primary p-4 rounded-lg cursor-pointer shadow-sm shadow-black/80",
         className,
       )}
     >

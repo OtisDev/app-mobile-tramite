@@ -24,3 +24,12 @@ export interface PaginatedRequest {
     page?: number;
     result_type?: 'collection' | 'list' | 'paginated';
 }
+
+export type KeyOfType<T, V> = {
+    [K in keyof T]: T[K] extends V ? K : never;
+}[keyof T];
+
+export interface KeyValuePair<K extends string | number | symbol, V> {
+    value: V;
+    text: K;
+}

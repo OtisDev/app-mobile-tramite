@@ -4,11 +4,11 @@ import SelectDocumentType from "@/components/shared/select-document-type";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { InputGroup } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
@@ -16,17 +16,22 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { Spacing } from "@/constants/theme";
 import {
-    ChangePasswordForm,
-    ChangePasswordSchema,
-    UserForm,
-    UserSchema,
+  ChangePasswordForm,
+  ChangePasswordSchema,
+  UserForm,
+  UserSchema,
 } from "@/schemas";
 import { updatePassword, updateUser } from "@/services/auth.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image } from "expo-image";
-import { LucideAlertTriangle, LucideSave } from "lucide-react-native";
+import { Image, ImageBackground } from "expo-image";
+import { useRouter } from "expo-router";
+import {
+  LucideAlertTriangle,
+  LucideLogOut,
+  LucideSave,
+} from "lucide-react-native";
 import { Fragment, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -38,6 +43,7 @@ export default function DashboardAccountScreen() {
   const [loadingPassword, setLoadingPassword] = useState<boolean>(false);
   const [errorPassword, setErrorPassword] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const router = useRouter();
 
   const {
     control,
@@ -147,266 +153,292 @@ export default function DashboardAccountScreen() {
     }
   }, [user?.dni, user?.tipoDocId, user?.name]);
 
+  const handleLogout = () => {
+    useAuthStore.getState().logout();
+    router.replace("/login");
+  };
+
   return (
-    <KeyboardAvoidingWrapper contentClassName="p-6">
-      <View style={{ padding: Spacing.four, alignItems: "center" }}>
+    <KeyboardAvoidingWrapper>
+      <View style={{ height: 260 }} className="w-full">
+        <ImageBackground
+          source={require("@/assets/images/cover-profile.png")}
+          style={{ width: "100%", height: "100%" }}
+          contentFit="cover"
+        />
+
         <View
-          className="rounded-full shadow-md border border-border p-1 bg-white"
-          style={{ width: 132, height: 132 }}
+          style={{ padding: Spacing.four, alignItems: "center" }}
+          className="gap-4 absolute w-full h-full items-center justify-center"
         >
-          <Image
-            source={{ uri: proxyAvatar }}
-            style={{ width: "100%", height: "100%", borderRadius: 999 }}
-          />
+          <View
+            className="rounded-full shadow-md border border-border p-1 bg-white"
+            style={{ width: 132, height: 132 }}
+          >
+            <Image
+              source={{ uri: proxyAvatar }}
+              style={{ width: "100%", height: "100%", borderRadius: 999 }}
+            />
+          </View>
+          <Button
+            variant={"outline"}
+            className="rounded-full"
+            onPress={handleLogout}
+          >
+            <LucideLogOut className="mr-2" color="#456799" size={20} />
+            <Text className="text-sm text-primary">Cerrar sesión</Text>
+          </Button>
         </View>
       </View>
 
-      <Card className="rounded-2xl mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg">Información del Usuario</CardTitle>
-        </CardHeader>
-        <CardContent className="relative flex flex-col gap-4 ">
-          {loading && (
-            <Loading
-              message="Actualizando información..."
-              animation="Gears"
-              size={150}
-              className="z-50 mx-6"
-            />
-          )}
-          <Controller
-            control={control}
-            name="documentType"
-            render={({ field }) => (
-              <SelectDocumentType
-                selectClassName="z-50"
-                value={field.value}
-                onValueChange={field.onChange}
-                inModal={true}
-                error={errors.documentType?.value?.message}
+      <View className="px-6 gap-6">
+        <Card className="rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg">Información del Usuario</CardTitle>
+          </CardHeader>
+          <CardContent className="relative flex flex-col gap-4 ">
+            {loading && (
+              <Loading
+                message="Actualizando información..."
+                animation="Gears"
+                size={150}
+                className="z-50 mx-6"
               />
             )}
-          />
-          <Controller
-            control={control}
-            name="dni"
-            render={({ field }) => (
-              <InputGroup
-                label="Número de documento"
-                keyboardType="number-pad"
-                value={field.value}
-                onChangeText={field.onChange}
-                error={errors.dni?.message}
-                required
-              />
-            )}
-          />
-
-          {control._formValues.documentType?.value !== "4" && (
-            <Fragment>
-              <Controller
-                control={control}
-                name="firstName"
-                render={({ field }) => (
-                  <InputGroup
-                    label="Nombres"
-                    value={field.value || ""}
-                    required
-                    onChangeText={field.onChange}
-                    error={errors.firstName?.message}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="lastName"
-                render={({ field }) => (
-                  <InputGroup
-                    label="Apellido Paterno"
-                    value={field.value || ""}
-                    required
-                    onChangeText={field.onChange}
-                    error={errors.lastName?.message}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="secondLastName"
-                render={({ field }) => (
-                  <InputGroup
-                    label="Apellido Materno"
-                    value={field.value || ""}
-                    required
-                    onChangeText={field.onChange}
-                    error={errors.secondLastName?.message}
-                  />
-                )}
-              />
-            </Fragment>
-          )}
-
-          {control._formValues.documentType?.value === "4" && (
             <Controller
               control={control}
-              name="name"
+              name="documentType"
               render={({ field }) => (
-                <InputGroup
-                  label="Razón Social"
-                  value={field.value || ""}
-                  onChangeText={field.onChange}
-                  error={errors.name?.message}
+                <SelectDocumentType
+                  selectClassName="z-50"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  inModal={true}
+                  error={errors.documentType?.value?.message}
                 />
               )}
             />
-          )}
-
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <InputGroup
-                label="Correo electrónico"
-                value={field.value || ""}
-                onChangeText={field.onChange}
-                keyboardType="email-address"
-                error={errors.email?.message}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field }) => (
-              <InputGroup
-                label="Celular"
-                keyboardType="number-pad"
-                value={field.value || ""}
-                onChangeText={field.onChange}
-                error={errors.phone?.message}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="address"
-            render={({ field }) => (
-              <InputGroup
-                label="Dirección"
-                value={field.value || ""}
-                onChangeText={field.onChange}
-                required
-                error={errors.address?.message}
-              />
-            )}
-          />
-        </CardContent>
-        <CardFooter className="flex flex-row justify-between gap-2">
-          <Button
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting || loading}
-          >
-            <LucideSave className="mr-2" color="white" size={20} />
-            <Text>Actualizar</Text>
-          </Button>
-        </CardFooter>
-      </Card>
-
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-lg">Cambiar contraseña</CardTitle>
-        </CardHeader>
-        <CardContent className="relative flex flex-col gap-4">
-          {loadingPassword && (
-            <Loading
-              message="Actualizando contraseña..."
-              animation="Gears"
-              size={150}
-              className="z-50 mx-6"
+            <Controller
+              control={control}
+              name="dni"
+              render={({ field }) => (
+                <InputGroup
+                  label="Número de documento"
+                  keyboardType="number-pad"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={errors.dni?.message}
+                  required
+                />
+              )}
             />
-          )}
-          {errorPassword && (
-            <Alert
-              icon={LucideAlertTriangle}
-              variant="destructive"
-              className="bg-red-100 border-destructive"
-            >
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{errorPassword}</AlertDescription>
-            </Alert>
-          )}
-          <Controller
-            control={controlPwd}
-            name="currentPassword"
-            render={({ field }) => (
-              <InputGroup
-                label="Contraseña actual"
-                secureTextEntry={!showPassword}
-                required
-                value={field.value}
-                onChangeText={field.onChange}
-                error={errorsPwd.currentPassword?.message}
-                upperCase={false}
+
+            {control._formValues.documentType?.value !== "4" && (
+              <Fragment>
+                <Controller
+                  control={control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <InputGroup
+                      label="Nombres"
+                      value={field.value || ""}
+                      required
+                      onChangeText={field.onChange}
+                      error={errors.firstName?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <InputGroup
+                      label="Apellido Paterno"
+                      value={field.value || ""}
+                      required
+                      onChangeText={field.onChange}
+                      error={errors.lastName?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="secondLastName"
+                  render={({ field }) => (
+                    <InputGroup
+                      label="Apellido Materno"
+                      value={field.value || ""}
+                      required
+                      onChangeText={field.onChange}
+                      error={errors.secondLastName?.message}
+                    />
+                  )}
+                />
+              </Fragment>
+            )}
+
+            {control._formValues.documentType?.value === "4" && (
+              <Controller
+                control={control}
+                name="name"
+                render={({ field }) => (
+                  <InputGroup
+                    label="Razón Social"
+                    value={field.value || ""}
+                    onChangeText={field.onChange}
+                    error={errors.name?.message}
+                  />
+                )}
               />
             )}
-          />
-          <Controller
-            control={controlPwd}
-            name="newPassword"
-            render={({ field }) => (
-              <InputGroup
-                label="Nueva contraseña"
-                secureTextEntry={!showPassword}
-                required
-                value={field.value}
-                onChangeText={field.onChange}
-                error={errorsPwd.newPassword?.message}
-                upperCase={false}
-              />
-            )}
-          />
-          <Controller
-            control={controlPwd}
-            name="confirmNewPassword"
-            render={({ field }) => (
-              <InputGroup
-                label="Confirmar nueva contraseña"
-                secureTextEntry={!showPassword}
-                required
-                value={field.value}
-                onChangeText={field.onChange}
-                error={errorsPwd.confirmNewPassword?.message}
-                upperCase={false}
-              />
-            )}
-          />
-          <View className="flex flex-row items-center gap-2">
-            <Switch
-              checked={showPassword}
-              onCheckedChange={setShowPassword}
-              nativeID="show-passwords"
-              id="show-passwords"
+
+            <Controller
+              control={control}
+              name="email"
+              render={({ field }) => (
+                <InputGroup
+                  label="Correo electrónico"
+                  value={field.value || ""}
+                  onChangeText={field.onChange}
+                  keyboardType="email-address"
+                  error={errors.email?.message}
+                />
+              )}
             />
-            <Label
-              htmlFor="show-passwords"
-              nativeID="show-passwords"
-              onPress={() => setShowPassword(!showPassword)}
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field }) => (
+                <InputGroup
+                  label="Celular"
+                  keyboardType="number-pad"
+                  value={field.value || ""}
+                  onChangeText={field.onChange}
+                  error={errors.phone?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="address"
+              render={({ field }) => (
+                <InputGroup
+                  label="Dirección"
+                  value={field.value || ""}
+                  onChangeText={field.onChange}
+                  required
+                  error={errors.address?.message}
+                />
+              )}
+            />
+          </CardContent>
+          <CardFooter className="flex flex-row justify-between gap-2">
+            <Button
+              onPress={handleSubmit(onSubmit)}
+              disabled={isSubmitting || loading}
             >
-              Mostrar contraseñas
-            </Label>
-          </View>
-        </CardContent>
-        <CardFooter className="flex flex-row justify-between gap-2">
-          <Button
-            onPress={handleSubmitPwd(onSubmitPassword)}
-            disabled={isSubmittingPwd || loadingPassword}
-          >
-            <LucideSave className="mr-2" color="white" size={20} />
-            <Text>Actualizar</Text>
-          </Button>
-        </CardFooter>
-      </Card>
+              <LucideSave className="mr-2" color="white" size={20} />
+              <Text>Actualizar</Text>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card className="rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg">Cambiar contraseña</CardTitle>
+          </CardHeader>
+          <CardContent className="relative flex flex-col gap-4">
+            {loadingPassword && (
+              <Loading
+                message="Actualizando contraseña..."
+                animation="Gears"
+                size={150}
+                className="z-50 mx-6"
+              />
+            )}
+            {errorPassword && (
+              <Alert
+                icon={LucideAlertTriangle}
+                variant="destructive"
+                className="bg-red-100 border-destructive"
+              >
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{errorPassword}</AlertDescription>
+              </Alert>
+            )}
+            <Controller
+              control={controlPwd}
+              name="currentPassword"
+              render={({ field }) => (
+                <InputGroup
+                  label="Contraseña actual"
+                  secureTextEntry={!showPassword}
+                  required
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={errorsPwd.currentPassword?.message}
+                  upperCase={false}
+                />
+              )}
+            />
+            <Controller
+              control={controlPwd}
+              name="newPassword"
+              render={({ field }) => (
+                <InputGroup
+                  label="Nueva contraseña"
+                  secureTextEntry={!showPassword}
+                  required
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={errorsPwd.newPassword?.message}
+                  upperCase={false}
+                />
+              )}
+            />
+            <Controller
+              control={controlPwd}
+              name="confirmNewPassword"
+              render={({ field }) => (
+                <InputGroup
+                  label="Confirmar nueva contraseña"
+                  secureTextEntry={!showPassword}
+                  required
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={errorsPwd.confirmNewPassword?.message}
+                  upperCase={false}
+                />
+              )}
+            />
+            <View className="flex flex-row items-center gap-2">
+              <Switch
+                checked={showPassword}
+                onCheckedChange={setShowPassword}
+                nativeID="show-passwords"
+                id="show-passwords"
+              />
+              <Label
+                htmlFor="show-passwords"
+                nativeID="show-passwords"
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                Mostrar contraseñas
+              </Label>
+            </View>
+          </CardContent>
+          <CardFooter className="flex flex-row justify-between gap-2">
+            <Button
+              onPress={handleSubmitPwd(onSubmitPassword)}
+              disabled={isSubmittingPwd || loadingPassword}
+            >
+              <LucideSave className="mr-2" color="white" size={20} />
+              <Text>Actualizar</Text>
+            </Button>
+          </CardFooter>
+        </Card>
+      </View>
     </KeyboardAvoidingWrapper>
   );
 }

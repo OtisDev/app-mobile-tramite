@@ -1,48 +1,34 @@
 import { ThemedView } from "@/components/themed-view";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { findSetting } from "@/services/config.service";
-import * as Location from "expo-location";
+import { appSettings } from "@/services/config.service";
+import { useAppStore } from "@/stores/app.store";
 import LottieView from "lottie-react-native";
 import { LucideRefreshCcw } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import WebView from "react-native-webview";
 
 export default function SportsVenuesScreen() {
+  const { settings, setSettings } = useAppStore();
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [mapUrl, setMapUrl] = useState<string | null>(null);
-  const getUserLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-
-    if (status === "granted") {
-      const location = await Location.getCurrentPositionAsync({});
-
-      console.log(location.coords);
-    }
-  };
+  const [mapUrl, setMapUrl] = useState<string | null>(
+    settings.sports_venues_map_url || null,
+  );
 
   const getMapUrl = () => {
     try {
       setRefreshing(true);
-      findSetting("sports_venues_map_url")
-        .then((setting) => {
-          if (setting) {
-            setMapUrl(setting.value);
-          } else {
-            setMapUrl(null);
-          }
-        })
-        .finally(() => setRefreshing(false));
+      appSettings().then((s) => {
+        setSettings(s);
+        setMapUrl(s.sports_venues_map_url || null);
+        setRefreshing(false);
+      });
     } catch (error) {
       setMapUrl(null);
       setRefreshing(false);
     }
   };
-
-  useEffect(() => {
-    getMapUrl();
-  }, []);
 
   return (
     <ThemedView className="flex-1 relative bg-gray-100 dark:bg-gray-900">
